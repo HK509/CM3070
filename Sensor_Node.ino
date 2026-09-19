@@ -73,9 +73,9 @@ float measureWaterLevel(){
   long duration = pulseIn(ECHO_PIN, HIGH);
   float calculatedDistance = duration * 0.034 / 2; //multiply by half of speed of sound
   
-  Serial.print("Sensor Measured: ");
+  Serial.print("Water Distance Measured: ");
   Serial.print(calculatedDistance);
-  Serial.println(" cm");
+  Serial.print(" cm  |  ");
 
   return calculatedDistance;
 }
@@ -103,7 +103,7 @@ dht11Data measureTempHumidity(){
 
     Serial.print("Temperature: ");
     Serial.print(temperature);
-    Serial.print("°C");
+    Serial.println("°C");
 
     readings.temperature = temperature;
     readings.humidity = humidity;
