@@ -13,6 +13,8 @@ const uint8_t DHT_TYPE = DHT11;
 //create a object (DHT11)
 DHT dht11_sensor(DHT_PIN, DHT_TYPE);
 
+//define Soil moisture sensor pin
+const int SOIL_MOISTURE_PIN = A0;
 
 
 //ultrasonic sensor reading storage variable - water level distance
@@ -24,6 +26,9 @@ struct dht11Data{
   float humidity;
 };
 dht11Data dht11_temp_humidity;
+
+//soil moisture sensor reading storage veriable
+float soilMoisture_level;
 
 
 void setup() {
@@ -51,6 +56,9 @@ void loop() {
   
   //get temperature and humidity levels
   dht11_temp_humidity = measureTempHumidity();
+
+  //get soil moisture level
+  soilMoisture_level = measureSoilMoisture();
 
   delay(750);
 
@@ -103,11 +111,23 @@ dht11Data measureTempHumidity(){
 
     Serial.print("Temperature: ");
     Serial.print(temperature);
-    Serial.println("°C");
+    Serial.print("°C  |  ");
 
     readings.temperature = temperature;
     readings.humidity = humidity;
   }
 
   return readings;
+}
+
+
+
+//soil moisture sensor reading function
+float measureSoilMoisture(){
+  int soilMoistureValue = analogRead(SOIL_MOISTURE_PIN);
+
+  Serial.print("Soil Moisture: ");
+  Serial.println(soilMoistureValue);
+
+  return soilMoistureValue;
 }
