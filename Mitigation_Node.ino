@@ -4,7 +4,7 @@
 
 
 //declare water pump relay pin - irrigation system 
-const int WATER_PUMP_PIN = D7;
+const int WATER_PUMP_PIN = D5;
 
 //create a servo object - floodgate
 Servo floodgate;
@@ -38,11 +38,14 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   activateFloodgate();
-  activateIrrigation();
-  delay(2000);
+  delay(1000);
   deactivateFloodgate();
+  delay(2000);
+  activateIrrigation();
+  delay(1000);
   deactivateIrrigation();
-  delay(5000);
+  delay(2000);
+  
 
 }
 
@@ -84,9 +87,11 @@ void deactivateFloodgate(){
 //function that activates/ starts the irigation system - pump turns on
 void activateIrrigation(){
   if(irrigationActive == false){
+
+    //temporarily remove floodgate when pump is on (both fight over power)
+    floodgate.detach();
+    delay(500);
     digitalWrite(WATER_PUMP_PIN, LOW);
-    //wait 2 seconds
-    delay(2000);
   }
 
   irrigationActive = true;
@@ -101,11 +106,12 @@ void activateIrrigation(){
 void deactivateIrrigation(){
   if(irrigationActive == true){
     digitalWrite(WATER_PUMP_PIN, HIGH);
-    //wait 2 seconds
-    delay(2000);
   }
 
   irrigationActive = false;
+
+  //reatach floodgate now pump is off
+  floodgate.attach(D2, 500, 2500);
 
   Serial.print("Irrigation Active: ");
   Serial.println(irrigationActive);
