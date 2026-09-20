@@ -4,6 +4,8 @@
 
 //define LED pins
 const int GREEN_LED = D8;
+const int YELLOW_LED = D7;
+const int RED_LED = D6;
 
 //create a LCD object
 LiquidCrystal_I2C lcdScreen(0x27, 16, 2);
@@ -29,6 +31,8 @@ void setup() {
 
   //initialise LED pins
   pinMode(GREEN_LED, OUTPUT);
+  pinMode(YELLOW_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
 }
 
 void loop() {
@@ -106,14 +110,20 @@ void displayCriticalText() {
 void operateLights(){
   if(environmentStatus == 0){
     digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(YELLOW_LED, LOW);
+    digitalWrite(RED_LED, LOW);
   }
 
   if(environmentStatus == 1){
     digitalWrite(GREEN_LED, LOW);
+    digitalWrite(YELLOW_LED, HIGH);
+    digitalWrite(RED_LED, LOW);
   }
 
   if(environmentStatus == 2){
     digitalWrite(GREEN_LED, LOW);
+    digitalWrite(YELLOW_LED, LOW);
+    digitalWrite(RED_LED, HIGH);
   }
 }
 
