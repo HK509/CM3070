@@ -2,6 +2,9 @@
 //library for LCD screen
 #include <LiquidCrystal_I2C.h>
 
+//define LED pins
+const int GREEN_LED = D8;
+
 //create a LCD object
 LiquidCrystal_I2C lcdScreen(0x27, 16, 2);
 
@@ -24,6 +27,8 @@ void setup() {
   lcdScreen.clear();
   //displayNormalText();
 
+  //initialise LED pins
+  pinMode(GREEN_LED, OUTPUT);
 }
 
 void loop() {
@@ -51,6 +56,7 @@ void updateStatus(){
   if(environmentStatus == 0 && previousStatus !=0){
     lcdScreen.clear();
     displayNormalText();
+    operateLights();
     previousStatus = 0;
   } 
 
@@ -58,6 +64,7 @@ void updateStatus(){
   if(environmentStatus == 1 && previousStatus !=1){
     lcdScreen.clear();
     displayWarningText();
+    operateLights();
     previousStatus = 1;
   }
 
@@ -65,6 +72,7 @@ void updateStatus(){
   if(environmentStatus == 2 && previousStatus !=2){
     lcdScreen.clear();
     displayCriticalText();
+    operateLights();
     previousStatus = 2;
   }
 }
@@ -92,6 +100,21 @@ void displayCriticalText() {
   lcdScreen.print("Alert Node");                  
   lcdScreen.setCursor(0, 1);       
   lcdScreen.print("CRITICAL");
+}
+
+
+void operateLights(){
+  if(environmentStatus == 0){
+    digitalWrite(GREEN_LED, HIGH);
+  }
+
+  if(environmentStatus == 1){
+    digitalWrite(GREEN_LED, LOW);
+  }
+
+  if(environmentStatus == 2){
+    digitalWrite(GREEN_LED, LOW);
+  }
 }
 
 
