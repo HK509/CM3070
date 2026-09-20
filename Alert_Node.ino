@@ -56,11 +56,13 @@ void loop() {
 //function that checks if environment status has changed, if it has, act accordingly and update previousStatus
 void updateStatus(){
 
+  //change LEDs illumination based on new current envirconment condition status
+  operateLeds();
+
   //status changed to normal
   if(environmentStatus == 0 && previousStatus !=0){
     lcdScreen.clear();
     displayNormalText();
-    operateLights();
     previousStatus = 0;
   } 
 
@@ -68,7 +70,6 @@ void updateStatus(){
   if(environmentStatus == 1 && previousStatus !=1){
     lcdScreen.clear();
     displayWarningText();
-    operateLights();
     previousStatus = 1;
   }
 
@@ -76,7 +77,6 @@ void updateStatus(){
   if(environmentStatus == 2 && previousStatus !=2){
     lcdScreen.clear();
     displayCriticalText();
-    operateLights();
     previousStatus = 2;
   }
 }
@@ -107,7 +107,8 @@ void displayCriticalText() {
 }
 
 
-void operateLights(){
+//function that controls the LEDs based on current environmental status 
+void operateLeds(){
   if(environmentStatus == 0){
     digitalWrite(GREEN_LED, HIGH);
     digitalWrite(YELLOW_LED, LOW);
