@@ -20,7 +20,7 @@ void setup() {
   Serial.begin(9600);
 
   //define servo pin - floodgate
-  floodgate.attach(D2);
+  floodgate.attach(D2, 500, 2500);
 
 }
 
@@ -54,7 +54,7 @@ void activateFloodgate(){
 
 //function that deactivates/ closes the floodgate - servo rotates from 180° to 0°
 void deactivateFloodgate(){
-  if(floodgateActive == false){
+  if(floodgateActive == true){
     for(floodgate_pos = 180; floodgate_pos >= 0; floodgate_pos -= 1){
       floodgate.write(floodgate_pos);
       delay(10);
