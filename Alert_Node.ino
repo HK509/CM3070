@@ -47,6 +47,11 @@ void loop() {
   //check if the environment status has changed and update accordingly
   updateStatus();
 
+  //check if environment status is CRITICAL (we want to continously loop over the siren until the state stops)
+  if(environmentStatus == 2){
+    playSiren();
+  }
+
   //randomly go through the three states - 0: normal (green), 1: WARNING (yellow), and 2: CRITICAL (red)
   environmentStatus = random(0, 3);
   Serial.print("Environment Status: ");
@@ -54,7 +59,7 @@ void loop() {
   Serial.print(" | ");
   Serial.print("Previous Status: ");
   Serial.println(previousStatus);
-  delay(2000);
+  delay(3000);
 
 }
 
@@ -70,6 +75,7 @@ void updateStatus(){
     lcdScreen.clear();
     displayNormalText();
 
+    //clear the buzzer in case siren was enabled for CRITICAL state
     noTone(BUZZER_PIN);
 
     previousStatus = 0;
@@ -80,8 +86,10 @@ void updateStatus(){
     lcdScreen.clear();
     displayWarningText();
 
-    tone(BUZZER_PIN, 494, 750);
-    //noTone(BUZZER_PIN);
+    //clear the buzzer in case the siren was enbaled for CRITICAL state
+    noTone(BUZZER_PIN);
+    //play the warning beep - we only want it once when the warning state is identified
+    playWarningAlarm();
 
     previousStatus = 1;
   }
@@ -90,16 +98,6 @@ void updateStatus(){
   if(environmentStatus == 2 && previousStatus !=2){
     lcdScreen.clear();
     displayCriticalText();
-
-    tone(BUZZER_PIN, 500, 750);
-    delay(500);
-    tone(BUZZER_PIN, 600, 750);
-    delay(500);
-    tone(BUZZER_PIN, 500, 750);
-    delay(500);
-    tone(BUZZER_PIN, 600, 750);
-
-
     previousStatus = 2;
   }
 }
@@ -149,6 +147,21 @@ void operateLeds(){
     digitalWrite(YELLOW_LED, LOW);
     digitalWrite(RED_LED, HIGH);
   }
+}
+
+//function that sounds a small beep alarm from buzzer when the environment status is set to WARNING
+void playWarningAlarm(){
+  tone(BUZZER_PIN, 450, 500);
+  delay(500);
+  tone(BUZZER_PIN, 450, 500);
+}
+
+//function that plays a siren noise buzzer continuously when the environment status is set to CRITICAL
+void playSiren(){
+  tone(BUZZER_PIN, 500, 750);
+  delay(500);
+  tone(BUZZER_PIN, 600, 750);
+  delay(500);
 }
 
 
