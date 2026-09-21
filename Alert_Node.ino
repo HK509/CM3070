@@ -39,7 +39,7 @@ struct mitigationCommandPacket{
   bool activateFloodgate;
   bool activateIrrigation;
   byte communicationCheck;
-}
+};
 
 //create a variable of the calculated mitigation action command packet data structure defined
 mitigationCommandPacket mitigationTransmissionCommand;
@@ -80,7 +80,7 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
   if(!manualOverrideActive){
     //automated threshold evaluation (Fuzzy Logic placeholder for now)
     // if the tank water level gets high (e.g., > 10cm) or soil probe detects dry dirt
-    if (receivedSensorPacket.waterLevel > 10 || receivedSensorPacket.soilMoisture < 300) {
+    if (sensorReadingsRecieved.waterLevel > 10 || sensorReadingsRecieved.soilMoisture < 300) {
       mitigationTransmissionCommand.activateFloodgate = true; //open the floodgate
       mitigationTransmissionCommand.activateIrrigation = false; //deactivate the irrigation system/ waterpump + relay
     } else {
@@ -90,7 +90,7 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
     mitigationTransmissionCommand.communicationCheck = 0xAA; //mark data packet as an automated action frame
   }
 
-  Serial.println("Now communicating with mitigation node and sending actions")
+  Serial.println("Now communicating with mitigation node and sending actions");
   //now transmit the packet to the mitigation node
   esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
 }

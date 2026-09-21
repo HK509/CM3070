@@ -1,6 +1,6 @@
 
 
-//Library for ESP-NOW communication
+//Libraries for ESP-NOW communication
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
@@ -41,7 +41,7 @@ float soilMoisture_level;
 struct sensorReadingPacket{
   float temperature;
   float humidity;
-  int waterLevel;
+  float waterLevel;
   int soilMoisture;
 };
 
@@ -55,7 +55,7 @@ uint8_t alertNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
 
 //ESP-NOW transmission delivery feedback callback handler when data is sent
 //This function automatically executes the moment the node attempts to transmit data packets
-void OnDataSent(uint8_t *mac_addr, uint8_t sentStatus){
+void onDataSent(uint8_t *mac_addr, uint8_t sentStatus){
   Serial.print("\r\n Recent Packet sent status: \t");
   Serial.println(sentStatus == 0 ? "Successfully delivered" : "Delivery Failed");
 }
@@ -83,7 +83,7 @@ void setup() {
 
 
 
-  //check ESP-NOW connection if failed, add message to serial monitor and deep sleep for 5 seconds
+  //check ESP-NOW connection if failed, add message to serial monitor
   if (esp_now_init() != 0) {
     Serial.println("ESP-NOW Init Failed");
   }
@@ -92,7 +92,7 @@ void setup() {
   esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
 
   //register the transmission callback function defined
-  esp_now_register_send_cb(OnDataSent);
+  esp_now_register_send_cb(onDataSent);
 
   //register the Alert Node (3) as a reciever 
   //Settings: (MAC Address, Device Role, Wi-Fi Channel 1, No Security Key, Key Length 0)
@@ -119,7 +119,7 @@ void loop() {
   sensorTransmissionPacket.temperature = dht11_temp_humidity.temperature;
   sensorTransmissionPacket.humidity = dht11_temp_humidity.humidity;
   sensorTransmissionPacket.waterLevel = waterLevel_distance;
-  sensorTransmissionPacket.soilMoisture = soilMoisture_Level;
+  sensorTransmissionPacket.soilMoisture = soilMoisture_level;
 
   Serial.println("Brodcasting Data Packet to Alert Node");
 
