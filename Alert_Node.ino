@@ -158,10 +158,24 @@ void playWarningAlarm(){
 
 //function that plays a siren noise buzzer continuously when the environment status is set to CRITICAL
 void playSiren(){
-  tone(BUZZER_PIN, 500, 750);
-  delay(500);
-  tone(BUZZER_PIN, 600, 750);
-  delay(500);
+
+  //two-tone siren
+  //tone(BUZZER_PIN, 500, 750);
+  //delay(500);
+  //tone(BUZZER_PIN, 600, 750);
+  //delay(500);
+
+  //smooth constant shifting wail siren
+  //gradually increase frequency
+  for(int frequency = 500; frequency <= 800; frequency += 5){
+    tone(BUZZER_PIN, frequency);
+    delay(10);
+  }
+  //gradually decrease frequency
+  for(int frequency = 800; frequency >= 500; frequency -= 5){
+    tone(BUZZER_PIN, frequency);
+    delay(10);
+  }
 }
 
 
