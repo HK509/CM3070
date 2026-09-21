@@ -45,7 +45,7 @@ struct mitigationCommandPacket{
 mitigationCommandPacket mitigationTransmissionCommand;
 
 //store MAC Address for Sensor Node (Node 1)
-uint8_t mitigationNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
+uint8_t sensorNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
 
 //store MAC Address for Mitigation Node (Node 2)
 uint8_t mitigationNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
@@ -140,6 +140,10 @@ void setup() {
 
   //register the transmission callback function defined
   esp_now_register_send_cb(onDataSent);
+
+  //register the Sensor Node (Node 1) as both sender and reciever 
+  //Settings: (MAC Address, Device Role, Wi-Fi Channel 1, No Security Key, Key Length 0)
+  esp_now_add_peer(sensorNode_MAC, ESP_NOW_ROLE_COMBO, 1, NULL, 0); 
 
   //register the Mitigation Node (Node 2) as a reciever 
   //Settings: (MAC Address, Device Role, Wi-Fi Channel 1, No Security Key, Key Length 0)
