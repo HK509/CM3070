@@ -41,8 +41,18 @@ struct mitigationCommandPacket{
   byte communicationCheck;
 };
 
-//create a variable of the calculated mitigation action command packet data structure defined
+//create a variable of the calculated mitigation action command packet data structure defined that will be sent to the Mitigation Node
 mitigationCommandPacket mitigationTransmissionCommand;
+
+
+//define a sleep duration packet data structure that will be used as acknowledgement to the Sensor Node's sensor reading data packet
+struct sleepDurationPacket{
+  int sleepDuration;
+};
+
+//create a variable of the calculated sleep duration packet data structure defined that will be sent to the Sensor Node as acknowledgement
+sleepDurationPacket calculatedSleepDurationPacket;
+
 
 //store MAC Address for Sensor Node (Node 1)
 uint8_t sensorNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
@@ -79,6 +89,7 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
   Serial.print(" | ");
   Serial.print("Soil Moisture Level: "); Serial.println(sensorReadingsRecieved.soilMoisture);
 
+  //FUZZY LOGIC PLACEHOLDER BELOW ----------------------------
   //now communicate with mitigation node if manual dashboard force override isn't enabled
   if(!manualOverrideActive){
     //automated threshold evaluation (Fuzzy Logic placeholder for now)
@@ -92,10 +103,19 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
     }
     mitigationTransmissionCommand.communicationCheck = 0xAA; //mark data packet as an automated action frame
   }
+  //FUZZY LOGIC PLACEHOLDER ABOVE ------------------------------
 
-  Serial.println("Now communicating with mitigation node and sending actions");
-  //now transmit the packet to the mitigation node
+
+  Serial.println("Now communicating with Mitigation Node and sending actions");
+  //now transmit the mitigation action control packet to the Mitigation Node
   esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
+
+
+  calculatedSleepDurationPacket.sleepDuration = 1000;
+  Serial.println("Now communicating with Sensor Node and sending sleep duration as aknowledgement");
+
+  //now transmit the sleep duration packet to the Sensor node
+  esp_now_send(sensorNode_MAC, (uint8_t *) &calculatedSleepDurationPacket, sizeof(calculatedSleepDurationPacket));
 }
 
 

@@ -37,7 +37,7 @@ float soilMoisture_level;
 
 
 
-//define a sensor reading packet data structure that will be used during communication
+//define a sensor reading packet data structure that will be used during communication with the Alert Node
 struct sensorReadingPacket{
   float temperature;
   float humidity;
@@ -45,8 +45,21 @@ struct sensorReadingPacket{
   int soilMoisture;
 };
 
-//create a variable of the sensor reading packet data structure defined
+//create a variable of the sensor reading packet data structure defined that will be sent to the Alert Node
 sensorReadingPacket sensorTransmissionPacket;
+
+
+//define a sleep duration packet data structure that will be recieved as acknowledgement from the Alert Node to the sensor reading packet it recieves
+struct sleepDurationPacket{
+  int sleepDuration;
+};
+
+//create a variable of the recieved sleep duration packet data structure defined that will be recieved from the Alert Node as acknowledgement
+sleepDurationPacket recievedSleepDurationPacket;
+
+//create a sleep duration variable
+int sleepDurationCalculated;
+
 
 
 //store MAC Address for Alert Node (Node 3)
@@ -58,6 +71,22 @@ uint8_t alertNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
 void onDataSent(uint8_t *mac_addr, uint8_t sentStatus){
   Serial.print("\r\n Recent Packet sent status: \t");
   Serial.println(sentStatus == 0 ? "Successfully delivered" : "Delivery Failed");
+}
+
+
+// Automatically triggers whenever Alert Node (Node 3) sends a message packet (acknowledgement through the sleep duration)
+void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
+  
+  // Unpack incoming bytes back into structured reading values
+  memcpy(&recievedSleepDurationPacket, incomingByte, sizeof(recievedSleepDurationPacket));
+  
+  // Print results to serial monitor
+  Serial.print("Acknowledgement Data Packet Recieved from Alert Node (Node 3)");
+  Serial.print("Sleep Duration: "); 
+  Serial.println(recievedSleepDurationPacket.sleepDuration);
+
+  sleepDurationCalculated = recievedSleepDurationPacket.sleepDuration;
+
 }
 
 
