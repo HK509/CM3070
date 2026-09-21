@@ -7,6 +7,9 @@ const int GREEN_LED = D8;
 const int YELLOW_LED = D7;
 const int RED_LED = D6;
 
+//define buzzer pin
+const int BUZZER_PIN = D5;
+
 //create a LCD object
 LiquidCrystal_I2C lcdScreen(0x27, 16, 2);
 
@@ -33,6 +36,9 @@ void setup() {
   pinMode(GREEN_LED, OUTPUT);
   pinMode(YELLOW_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
+
+  //initialise buzzer pin
+  pinMode(BUZZER_PIN, OUTPUT);
 }
 
 void loop() {
@@ -63,6 +69,9 @@ void updateStatus(){
   if(environmentStatus == 0 && previousStatus !=0){
     lcdScreen.clear();
     displayNormalText();
+
+    noTone(BUZZER_PIN);
+
     previousStatus = 0;
   } 
 
@@ -70,6 +79,10 @@ void updateStatus(){
   if(environmentStatus == 1 && previousStatus !=1){
     lcdScreen.clear();
     displayWarningText();
+
+    tone(BUZZER_PIN, 494, 750);
+    //noTone(BUZZER_PIN);
+
     previousStatus = 1;
   }
 
@@ -77,6 +90,16 @@ void updateStatus(){
   if(environmentStatus == 2 && previousStatus !=2){
     lcdScreen.clear();
     displayCriticalText();
+
+    tone(BUZZER_PIN, 500, 750);
+    delay(500);
+    tone(BUZZER_PIN, 600, 750);
+    delay(500);
+    tone(BUZZER_PIN, 500, 750);
+    delay(500);
+    tone(BUZZER_PIN, 600, 750);
+
+
     previousStatus = 2;
   }
 }
