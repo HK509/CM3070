@@ -320,7 +320,7 @@ void playSiren(){
 //fuzzy logic evaluation function that returns the environment status: 0 - Normal, 1 - WARNING, 2 - CRITICAL
 int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float waterLevel, int soilMoisture){
 
-  //calculate natural disaster threat indexes (between 0 and 1) using sensor readings
+  //calculate natural disaster threat indexes (between 0 and 1) using sensor readings - Fuzzification
   //0.0 = safe, no risk, 1.0 = maximum threat/ saturation
 
   //use right handed trapizoid function to calculate the temperature threat for wildfires, droughts and floods (because temperature has no upper limit except sensor limit)
@@ -338,6 +338,25 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //use left handed trapiziod function to calculate the soil moisture level risk for wildfires and drought
   //risk begins at a soil moisture level of 700.0 and saturates (always 1.0 at this point or below) at 300.0 soil moisture level
   float soilMoistureRisk = leftHandedTrapizoid(float(soilMoisture), 700.0, 300.0);
+
+
+  //now calculate risk index for each disaster using Mumdani-Style Fuzzy Inference
+  //min mapping is equal to AND, max mapping is equal to OR
+  
+  //calculate wildfire risk - high temperature, low humidity and low soil moisture (dry soil)
+  //using minimum mapping - e.g. the temperature may be high and humidity may be low, but if the soil is not dry then the risk of wildfire is not too great
+  //Rule: If temperature is high, and humidity is low and soil moisture is low (dry), then the threat of wildfire is critical
+  float wildfireRisk = min(temperatureRisk, min(humidityRisk, soilMoistureRisk));
+
+  //calculate drought risk - high temperature and normal soil moisture (soil is getting drier)
+  //using minimum mapping - e.g. the temperature may be high, but if the soil is not dry then the risk of drought is not too great until it starts getting drier
+  //Rule: If temperature is high and the soil moisture is normal to low, then the threat of drought is warning
+  float droughtRisk = min(temperatureRisk, soilMoistureRisk);
+
+  //calculate flood risk - high temperature, high humidity and high water levels
+  //using minimum and maximum mapping - the risk of flood is increased when water level is rising, but if water levels are low due to heat then flood risk is not great
+  //Rule: If temperature is high, and humidity is low, or the water level is rising, then the threat of flood is critical
+  float floodRisk = max(waterLevelFloodRisk, min(humidityRisk, temperatureRisk));
 
 
   return 0; //fallback for now
