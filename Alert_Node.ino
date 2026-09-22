@@ -178,13 +178,13 @@ void loop() {
   }
 
   //randomly go through the three states - 0: normal (green), 1: WARNING (yellow), and 2: CRITICAL (red)
-  environmentStatus = random(0, 3);
-  Serial.print("Environment Status: ");
-  Serial.print(environmentStatus);
-  Serial.print(" | ");
-  Serial.print("Previous Status: ");
-  Serial.println(previousStatus);
-  delay(3000);
+  //environmentStatus = random(0, 3);
+  //Serial.print("Environment Status: ");
+  //Serial.print(environmentStatus);
+  //Serial.print(" | ");
+  //Serial.print("Previous Status: ");
+  //Serial.println(previousStatus);
+  //delay(3000);
 
 }
 
@@ -314,9 +314,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //risk begins at 23.5°C and saturates (always 1.0 onwards) from 30.0°C (risk increases as temperature increases)
   float temperatureRisk = rightHandedTrapizoid(temperature, 23.5, 30.0);
 
-  //use right handed trapiziod function to calculate the water level threat for floods
-  //risk begins at 1.5cm and saturates (always 1.0 onwards) from 3.0cm (risk increases as water level increases)
-  float waterLevelFloodRisk = rightHandedTrapizoid(waterLevel, 1.5, 3.0);
+  //use left handed trapiziod function to calculate the water level threat for floods
+  //risk begins at 3 cm and saturates (always 1.0 at this point or below) from 1.5cm (risk increases as water level increases)
+  //the smaller the distance, the closer the water level to the sensor which means increased water level
+  float waterLevelFloodRisk = leftHandedTrapizoid(waterLevel, 3.0, 1.5);
 
   //use left handed trapiziod function to calculate the humidity risk for floods, wildfires and drought
   //risk begins at 65.0% humidity and saturates (always 1.0 at this point or below) at 40% humidity
