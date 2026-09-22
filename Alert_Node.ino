@@ -106,6 +106,12 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
   //FUZZY LOGIC PLACEHOLDER ABOVE ------------------------------
 
 
+  //call the fuzzy logic function to evaluate the environment based on sensor readings recieved
+  environmentStatus = fuzzyLogicEnvironmentEvaluation(sensorReadingsRecieved.temperature, 
+                                                      sensorReadingsRecieved.humidity, 
+                                                      sensorReadingsRecieved.waterLevel, 
+                                                      sensorReadingsRecieved.soilMoisture);
+
   Serial.println("Now communicating with Mitigation Node and sending actions");
   //now transmit the mitigation action control packet to the Mitigation Node
   esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
@@ -310,5 +316,65 @@ void playSiren(){
   }
 }
 
+
+//fuzzy logic evaluation function that returns the environment status: 0 - Normal, 1 - WARNING, 2 - CRITICAL
+int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float waterLevel, int soilMoisture){
+
+  //calculate natural disaster threat indexes (between 0 and 1) using sensor readings
+  //0.0 = safe, no risk, 1.0 = maximum threat/ saturation
+
+  //use right handed trapizoid function to calculate the temperature threat for wildfires, droughts and floods (because temperature has no upper limit except sensor limit)
+  //risk begins at 23.5°C and saturates (always 1.0 onwards) from 30.0°C (risk increases as temperature increases)
+  float temperatureRisk = rightHandedTrapizoid(temperature, 23.5, 30.0);
+
+  //use right handed trapiziod function to calculate the water level threat for floods
+  //risk begins at 1.5cm and saturates (always 1.0 onwards) from 3.0cm (risk increases as water level increases)
+  float waterLevelFloodRisk = rightHandedTrapizoid(waterLevel, 1.5, 3.0);
+
+  //use left handed trapiziod function to calculate the humidity risk for floods, wildfires and drought
+  //risk begins at 65.0% humidity and saturates (always 1.0 at this point or below) at 40% humidity
+  float humidityRisk = leftHandedTrapizoid(humidity, 65.0, 45.0);
+
+  //use left handed trapiziod function to calculate the soil moisture level risk for wildfires and drought
+  //risk begins at a soil moisture level of 700.0 and saturates (always 1.0 at this point or below) at 300.0 soil moisture level
+  float soilMoistureRisk = leftHandedTrapizoid(float(soilMoisture), 700.0, 300.0);
+
+
+  return 0; //fallback for now
+}
+
+
+//Fuzzy Logic helper function - Right Handed Trapiziod function - risk increases as factor increases
+float rightHandedTrapizoid(float value, float startPoint, float saturationPoint){
+  //completely safe conditions
+  if(value <= startPoint){
+    return 0.0;
+  }
+
+  //maximum threat saturation conditions
+  if(value >= saturationPoint){
+    return 1.0;
+  }
+
+  //fallback - not the two edge cases (completely safe/ maximum threat) so calculate threat index
+  return (value - startPoint) / (saturationPoint - startPoint);
+}
+
+
+//Fuzzy Logic helper function - Left Handed Trapiziod function - risk increases as factor decreases
+float leftHandedTrapizoid(float value, float endPoint, float saturationPoint){
+  //maximum threat saturation conditions - factor is too low
+  if(value <= saturationPoint){
+    return 1.0;
+  }
+
+  //completely safe conditions - factor is high enough
+  if(value >= endPoint){
+    return 0.0;
+  }
+
+  //fallback - not the two edge cases (completely safe/ maximum threat) so calculate threat index
+  return (endPoint - value) / (endPoint - saturationPoint);
+}
 
 
