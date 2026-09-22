@@ -57,8 +57,10 @@ sleepDurationPacket calculatedSleepDurationPacket;
 //store MAC Address for Sensor Node (Node 1)
 uint8_t sensorNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
 
+
 //store MAC Address for Mitigation Node (Node 2)
 uint8_t mitigationNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
+
 
 
 //ensure that mitigation actions haven't been force enabled on dashboard
@@ -123,6 +125,7 @@ void setup() {
   WiFi.forceSleepWake();
   delay(10);
   WiFi.mode(WIFI_STA);
+  wifi_set_channel(1);
 
   //initialise the LCD screen and its backlight
   lcdScreen.init();
@@ -317,7 +320,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //use left handed trapiziod function to calculate the water level threat for floods
   //risk begins at 3 cm and saturates (always 1.0 at this point or below) from 1.5cm (risk increases as water level increases)
   //the smaller the distance, the closer the water level to the sensor which means increased water level
-  float waterLevelFloodRisk = leftHandedTrapizoid(waterLevel, 3.0, 1.5);
+  float waterLevelFloodRisk = leftHandedTrapizoid(waterLevel, 5.0, 3.0);
 
   //use left handed trapiziod function to calculate the humidity risk for floods, wildfires and drought
   //risk begins at 65.0% humidity and saturates (always 1.0 at this point or below) at 40% humidity

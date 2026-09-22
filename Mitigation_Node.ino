@@ -78,6 +78,7 @@ void setup() {
   WiFi.forceSleepWake();
   delay(10);
   WiFi.mode(WIFI_STA);
+  wifi_set_channel(1);
 
   //define servo pin - floodgate, and min pulse width (500 as 0°) and max pulse width (2500°)
   floodgate.attach(D2, 500, 2500);
