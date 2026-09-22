@@ -106,6 +106,7 @@ void setup() {
   WiFi.forceSleepWake();
   delay(10);
   WiFi.mode(WIFI_STA);
+  wifi_set_channel(1);
 
   //configure the ultrasonic sensor pins: trigger pin to output mode and echo pin to input
   pinMode(TRIG_PIN, OUTPUT);
@@ -117,6 +118,22 @@ void setup() {
 
   //set acknowledgement recieved from the Alert Node as false;
   sleepDurationRecieved = false;
+
+  //calculate water level by calling the measureWaterLevel function to read ultrasonic distance sensor
+  waterLevel_distance = measureWaterLevel();
+  
+  //get temperature and humidity levels
+  dht11_temp_humidity = measureTempHumidity();
+
+  //get soil moisture level
+  soilMoisture_level = measureSoilMoisture();
+
+
+  //now prepare the data packet for transmission
+  sensorTransmissionPacket.temperature = dht11_temp_humidity.temperature;
+  sensorTransmissionPacket.humidity = dht11_temp_humidity.humidity;
+  sensorTransmissionPacket.waterLevel = waterLevel_distance;
+  sensorTransmissionPacket.soilMoisture = soilMoisture_level;
 
 
   //check ESP-NOW connection if failed, add message to serial monitor
@@ -138,21 +155,6 @@ void setup() {
   esp_now_register_recv_cb(onDataRecv);
 
 
-  //calculate water level by calling the measureWaterLevel function to read ultrasonic distance sensor
-  waterLevel_distance = measureWaterLevel();
-  
-  //get temperature and humidity levels
-  dht11_temp_humidity = measureTempHumidity();
-
-  //get soil moisture level
-  soilMoisture_level = measureSoilMoisture();
-
-
-  //now prepare the data packet for transmission
-  sensorTransmissionPacket.temperature = dht11_temp_humidity.temperature;
-  sensorTransmissionPacket.humidity = dht11_temp_humidity.humidity;
-  sensorTransmissionPacket.waterLevel = waterLevel_distance;
-  sensorTransmissionPacket.soilMoisture = soilMoisture_level;
 
   Serial.println("Brodcasting Data Packet to Alert Node");
 
@@ -183,7 +185,7 @@ void setup() {
   Serial.print(convertedSleepDuration);
   Serial.println(" microseconds...");
   // Sleep safely for the calculated time with RF disabled at startup to prevent brownouts (drops in voltages) over USB 
-  ESP.deepSleep(convertedSleepDuration, WAKE_RF_DISABLED);
+  ESP.deepSleep(convertedSleepDuration, WAKE_RF_DEFAULT);
 
 
 }
