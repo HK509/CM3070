@@ -60,6 +60,9 @@ sleepDurationPacket recievedSleepDurationPacket;
 //create a sleep duration variable
 int sleepDurationCalculated;
 
+//create a boolean variable that determines if the Alert Node has sent the sleep duration as acknowledgement
+bool sleepDurationRecieved = false;
+
 
 
 //store MAC Address for Alert Node (Node 3)
@@ -86,6 +89,7 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
   Serial.println(recievedSleepDurationPacket.sleepDuration);
 
   sleepDurationCalculated = recievedSleepDurationPacket.sleepDuration;
+  sleepDurationRecieved = true;
 
 }
 
@@ -111,6 +115,9 @@ void setup() {
   dht11_sensor.begin();
 
 
+  //set acknowledgement recieved from the Alert Node as false;
+  sleepDurationRecieved = false;
+
 
   //check ESP-NOW connection if failed, add message to serial monitor
   if (esp_now_init() != 0) {
@@ -120,12 +127,41 @@ void setup() {
   //set device role as both sender and reciever (combo) 
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
 
-  //register the transmission callback function defined
+  //register the sending transmission callback function defined
   esp_now_register_send_cb(onDataSent);
 
   //register the Alert Node (3) as a reciever 
   //Settings: (MAC Address, Device Role, Wi-Fi Channel 1, No Security Key, Key Length 0)
   esp_now_add_peer(alertNode_MAC, ESP_NOW_ROLE_COMBO, 1, NULL, 0); 
+
+  //register the recieving transmission callback function defined
+  esp_now_register_recv_cb(onDataRecv);
+
+  //now wait for the acknowledgement from the Alert Node containing sleep duration to be recieved
+  //create a timer using miliseconds
+  unsigned long timer = millis();
+  while (millis() - timer < 3000){
+    if(sleepDurationRecieved == true){
+      break;
+    }
+    delay(1); 
+  }
+
+  //if not recieved after 3 seconds, then go to sleep for short time and then wake up, so set sleep duration to 10 seconds
+  if(sleepDurationRecieved == false){
+    sleepDurationCalculated = 10;
+  }
+  
+  //now convert from seconds to milliseconds by multiplying by 1000000 (unsigned long long)
+  uint64_t convertedSleepDuration = uint64_t(sleepDurationCalculated) * 1000000ULL;
+
+  //now go to sleep
+  Serial.print("Going to sleep for: ");
+  Serial.print(convertedSleepDuration);
+  Serial.println(" microseconds...");
+  // Sleep safely for the calculated time with RF disabled at startup to prevent brownouts (drops in voltages) over USB 
+  ESP.deepSleep(convertedSleepDuration, WAKE_RF_DISABLED);
+
 
 }
 
