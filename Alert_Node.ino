@@ -340,7 +340,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   float soilMoistureRisk = leftHandedTrapizoid(float(soilMoisture), 700.0, 300.0);
 
 
-  //now calculate risk index for each disaster using Mumdani-Style Fuzzy Inference
+  //now calculate risk index for each disaster using Mamdani-Style Fuzzy Inference
   //min mapping is equal to AND, max mapping is equal to OR
   
   //calculate wildfire risk - high temperature, low humidity and low soil moisture (dry soil)
@@ -359,7 +359,70 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   float floodRisk = max(waterLevelFloodRisk, min(humidityRisk, temperatureRisk));
 
 
-  return 0; //fallback for now
+  //defuzzification - converting the calculated infered risk indexes into environment status (0: Normal, 1: WARNING, 2: CRITICAL)
+  //also create priorities - wildfire, flood then drought
+  //calculate mitigation actions and sleep duration
+
+  //most critical - active wildfire
+  //30 seconds Sensor Node sleep, close the floodgate and irrigation system for safety, set environment status to 2 (CRITICAL)
+  if(wildfireRisk >= 0.7){
+    calculatedSleepDurationPacket.sleepDuration = 30;
+    mitigationTransmissionCommand.activateFloodgate = false;
+    mitigationTransmissionCommand.activateIrrigation = false;
+    mitigationTransmissionCommand.communicationCheck = 0xAA;
+    return 2;
+  }
+
+  //next critical - active flood
+  //30 seconds Sensor Node sleep, open the floodgate and close irrigation system, set environment status to 2 (CRITICAL)
+  else if(floodRisk >= 0.7){
+    calculatedSleepDurationPacket.sleepDuration = 30;
+    mitigationTransmissionCommand.activateFloodgate = true;
+    mitigationTransmissionCommand.activateIrrigation = false;
+    mitigationTransmissionCommand.communicationCheck = 0xAA;
+    return 2;
+  }
+
+  //wildfire warning
+  //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
+  else if(wildfireRisk >= 0.35){
+    calculatedSleepDurationPacket.sleepDuration = 60;
+    mitigationTransmissionCommand.activateFloodgate = false;
+    mitigationTransmissionCommand.activateIrrigation = true;
+    mitigationTransmissionCommand.communicationCheck = 0xAA;
+    return 1;
+  }
+
+  //flood warning
+  //60 seconds Sensor Node sleep, open the floodgate and deactivate irrigation system, set environment status to 1 (WARNING)
+  else if(floodRisk >= 0.35){
+    calculatedSleepDurationPacket.sleepDuration = 60;
+    mitigationTransmissionCommand.activateFloodgate = true;
+    mitigationTransmissionCommand.activateIrrigation = false;
+    mitigationTransmissionCommand.communicationCheck = 0xAA;
+    return 1;
+  }
+
+  //drought warning
+  //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
+  else if(droughtRisk >= 0.35){
+    calculatedSleepDurationPacket.sleepDuration = 60;
+    mitigationTransmissionCommand.activateFloodgate = false;
+    mitigationTransmissionCommand.activateIrrigation = true;
+    mitigationTransmissionCommand.communicationCheck = 0xAA;
+    return 1;
+  }
+
+  //normal conditions now
+  //300 seconds Sensor Node sleep (5 minutes), close the floodgate and deactivate irrigation system, set environment status to 0 (Normal)
+  else{
+    calculatedSleepDurationPacket.sleepDuration = 300;
+    mitigationTransmissionCommand.activateFloodgate = false;
+    mitigationTransmissionCommand.activateIrrigation = false;
+    mitigationTransmissionCommand.communicationCheck = 0xAA;
+    return 0;
+  }
+
 }
 
 
