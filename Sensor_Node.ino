@@ -137,6 +137,29 @@ void setup() {
   //register the recieving transmission callback function defined
   esp_now_register_recv_cb(onDataRecv);
 
+
+  //calculate water level by calling the measureWaterLevel function to read ultrasonic distance sensor
+  waterLevel_distance = measureWaterLevel();
+  
+  //get temperature and humidity levels
+  dht11_temp_humidity = measureTempHumidity();
+
+  //get soil moisture level
+  soilMoisture_level = measureSoilMoisture();
+
+
+  //now prepare the data packet for transmission
+  sensorTransmissionPacket.temperature = dht11_temp_humidity.temperature;
+  sensorTransmissionPacket.humidity = dht11_temp_humidity.humidity;
+  sensorTransmissionPacket.waterLevel = waterLevel_distance;
+  sensorTransmissionPacket.soilMoisture = soilMoisture_level;
+
+  Serial.println("Brodcasting Data Packet to Alert Node");
+
+  //now transmit the data packet
+  esp_now_send(alertNode_MAC, (uint8_t *) &sensorTransmissionPacket, sizeof(sensorTransmissionPacket));
+
+
   //now wait for the acknowledgement from the Alert Node containing sleep duration to be recieved
   //create a timer using miliseconds
   unsigned long timer = millis();
@@ -166,33 +189,11 @@ void setup() {
 }
 
 
-
+//loop function is empty as not used - setup function will be called everytime the node wakes up
 void loop() {
   // put your main code here, to run repeatedly:
 
-  //calculate water level by calling the measureWaterLevel function to read ultrasonic distance sensor
-  waterLevel_distance = measureWaterLevel();
   
-  //get temperature and humidity levels
-  dht11_temp_humidity = measureTempHumidity();
-
-  //get soil moisture level
-  soilMoisture_level = measureSoilMoisture();
-
-
-  //now prepare the data packet for transmission
-  sensorTransmissionPacket.temperature = dht11_temp_humidity.temperature;
-  sensorTransmissionPacket.humidity = dht11_temp_humidity.humidity;
-  sensorTransmissionPacket.waterLevel = waterLevel_distance;
-  sensorTransmissionPacket.soilMoisture = soilMoisture_level;
-
-  Serial.println("Brodcasting Data Packet to Alert Node");
-
-  //now transmit the data packet
-  esp_now_send(alertNode_MAC, (uint8_t *) &sensorTransmissionPacket, sizeof(sensorTransmissionPacket));
-
-  //wait 3 seconds
-  delay(3000);
 
 }
 
