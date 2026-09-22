@@ -89,38 +89,25 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
   Serial.print(" | ");
   Serial.print("Soil Moisture Level: "); Serial.println(sensorReadingsRecieved.soilMoisture);
 
-  //FUZZY LOGIC PLACEHOLDER BELOW ----------------------------
-  //now communicate with mitigation node if manual dashboard force override isn't enabled
-  if(!manualOverrideActive){
-    //automated threshold evaluation (Fuzzy Logic placeholder for now)
-    // if the tank water level gets high (e.g., > 10cm) or soil probe detects dry dirt
-    if (sensorReadingsRecieved.waterLevel > 10 || sensorReadingsRecieved.soilMoisture < 300) {
-      mitigationTransmissionCommand.activateFloodgate = true; //open the floodgate
-      mitigationTransmissionCommand.activateIrrigation = false; //deactivate the irrigation system/ waterpump + relay
-    } else {
-      mitigationTransmissionCommand.activateFloodgate = false; //close the floodgate
-      mitigationTransmissionCommand.activateIrrigation = true; //activate the irrigation system/ waterpump + relay
-    }
-    mitigationTransmissionCommand.communicationCheck = 0xAA; //mark data packet as an automated action frame
-  }
-  //FUZZY LOGIC PLACEHOLDER ABOVE ------------------------------
 
-
+  //go through fuzzy logic
   //call the fuzzy logic function to evaluate the environment based on sensor readings recieved
   environmentStatus = fuzzyLogicEnvironmentEvaluation(sensorReadingsRecieved.temperature, 
                                                       sensorReadingsRecieved.humidity, 
                                                       sensorReadingsRecieved.waterLevel, 
                                                       sensorReadingsRecieved.soilMoisture);
+                                                      
 
-  Serial.println("Now communicating with Mitigation Node and sending actions");
-  //now transmit the mitigation action control packet to the Mitigation Node
-  esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
+  //now communicate with mitigation node if manual dashboard force override isn't enabled
+  if(!manualOverrideActive){
+    //now transmit the mitigation action control packet to the Mitigation Node
+    Serial.println("Now communicating with Mitigation Node and sending actions");
+    esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
+  }
 
-
-  calculatedSleepDurationPacket.sleepDuration = 1000;
-  Serial.println("Now communicating with Sensor Node and sending sleep duration as aknowledgement");
 
   //now transmit the sleep duration packet to the Sensor node
+  Serial.println("Now communicating with Sensor Node and sending sleep duration as aknowledgement");
   esp_now_send(sensorNode_MAC, (uint8_t *) &calculatedSleepDurationPacket, sizeof(calculatedSleepDurationPacket));
 }
 
