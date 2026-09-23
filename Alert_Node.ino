@@ -860,4 +860,88 @@ void getIndex(){
   server.send(200, "text/html", html);
 }
 
+//text to display on the web dashboard when there is a warning of a wildfire
+String getWarningWildfireText(){
+  //light orangish-yellow background, brownish color
+  String text = "<div style='background:#ffebbd; color:#856404; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #ffeeba;'>"
+          "<h3 style='margin:0; text-align:center;'> WILDFIRE WARNING: </h3>"
+          "<ul style='margin:10px 0 0 20px;'><li>Pack emergency supplies</li><li>Clear dry debris from gutters</li><li>Don't have BBQs or burn bonfires</li><li>Monitor local news and alerts</li></ul>"
+          "</div>";
+  return text;
+}
+
+//text to display on the web dashboard when there is a warning of a flood
+String getWarningFloodText(){
+  //light orangish-yellow background, brownish color
+  String text = "<div style='background:#ffebbd; color:#856404; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #ffeeba;'>"
+          "<h3 style='margin:0; text-align:center;'> FLOOD WARNING: </h3>"
+          "<ul style='margin:10px 0 0 20px;'><li>Move critical electrical items upstairs</li><li>Turn off primary utility valves</li></ul>"
+          "</div>";
+  return text;
+}
+
+//text to display on the web dashboard when there is a warning of a drought
+String getWarningDroughtText(){
+  //light orangish-yellow background, brownish color
+  String text = "<div style='background:#ffebbd; color:#856404; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #ffeeba;'>"
+          "<h3 style='margin:0; text-align:center;'> DROUGHT WARNING: </h3>"
+          "<ul style='margin:10px 0 0 20px;'><li>Strict domestic water restrictions are active</li><li>Hosepipe ban effective</li></ul>"
+          "</div>";
+  return text;
+}
+
+//text to display on the web dashboard when wildfire is critical
+String getCriticalWildfireText(){
+  //light deep red background, brownish-red color
+  String text = "<div style='background:#8C2939; color:#54131A; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #f5c6cb;'>"
+          "<h3 style='margin:0; text-align:center;'> CRITICAL WILDFIRE: </h3>"
+          "<ul style='margin:10px 0 0 20px;'><li><strong>Evacuate Immediately!</strong></li><li>Follow local emergency routes</li><li>Do not delay.</li></ul>"
+          "</div>";
+  return text;
+}
+
+//text to display on the web dashboard when flood is critical
+String getCriticalFloodText(){
+  //light deep red background, brownish-red color
+  String text = "<div style='background:#8C2939; color:#54131A; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #f5c6cb;'>"
+          "<h3 style='margin:0; text-align:center;'> CRITICAL FLOOD: </h3>"
+          "<ul style='margin:10px 0 0 20px;'><li>Move to the highest floor you can or roof immediately</li><li>Avoid driving or walking through moving water</li></ul>"
+          "</div>";
+  return text;
+}
+
+
+//function that retrieves the required warning or critical text to display on the dashboard
+String checkConditionAndGetText(){
+  //normal conditions, do not need to return any special text
+  if(environmentStatus == 0){
+    return "";
+  }
+
+  //warning states
+  if(environmentStatus == 1){
+    if(disasterType == 1){
+      return getWarningWildfireText();
+    }
+    else if(disasterType == 2){
+      return getWarningFloodText();
+    }
+    else if(disasterType == 3){
+      return getWarningDroughtText();
+    }
+  }
+
+  //critical states
+  if(environmentStatus == 2){
+    if(disasterType == 1){
+      return getCriticalWildfireText();
+    }
+    else if(disasterType == 2){
+      return getCriticalFloodText();
+    }
+  }
+
+  //safe fallback string
+  return "";
+}
 
