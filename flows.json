@@ -103,20 +103,6 @@
         "disabled": false
     },
     {
-        "id": "04584f432217aab4",
-        "type": "ui-group",
-        "name": "Live Sensor Readings",
-        "page": "3ee1c65a9d7e6069",
-        "width": 6,
-        "height": 1,
-        "order": 1,
-        "showTitle": true,
-        "className": "",
-        "visible": "true",
-        "disabled": "false",
-        "groupType": "default"
-    },
-    {
         "id": "3ee1c65a9d7e6069",
         "type": "ui-page",
         "name": "Main Responder Dashboard",
@@ -157,6 +143,20 @@
         "type": "ui-group",
         "name": "Force Controls and Set Policies",
         "page": "4915a886e0f7b935",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "04584f432217aab4",
+        "type": "ui-group",
+        "name": "Live Sensor Readings",
+        "page": "3ee1c65a9d7e6069",
         "width": 6,
         "height": 1,
         "order": 1,
@@ -514,8 +514,8 @@
         "mapurl": "",
         "mapopt": "",
         "mapwms": false,
-        "x": 870,
-        "y": 1040,
+        "x": 850,
+        "y": 1160,
         "wires": []
     },
     {
@@ -539,8 +539,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 430,
-        "y": 1040,
+        "x": 410,
+        "y": 1160,
         "wires": [
             [
                 "34bb72a408c1eeae"
@@ -559,8 +559,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 650,
-        "y": 1040,
+        "x": 630,
+        "y": 1160,
         "wires": [
             [
                 "6d5bcdd41c50a643"
@@ -769,7 +769,7 @@
         "pointRadius": 4,
         "showLegend": true,
         "removeOlder": 1,
-        "removeOlderUnit": "3600",
+        "removeOlderUnit": "604800",
         "removeOlderPoints": "",
         "colors": [
             "#0095ff",
@@ -809,8 +809,8 @@
         "url": "",
         "number": "",
         "name": "",
-        "x": 1230,
-        "y": 780,
+        "x": 590,
+        "y": 1100,
         "wires": []
     },
     {
@@ -832,7 +832,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 530,
+        "x": 390,
         "y": 520,
         "wires": [
             [
@@ -859,7 +859,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 520,
+        "x": 380,
         "y": 600,
         "wires": [
             [
@@ -886,7 +886,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 510,
+        "x": 370,
         "y": 560,
         "wires": [
             [
@@ -913,7 +913,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 530,
+        "x": 390,
         "y": 640,
         "wires": [
             [
@@ -927,15 +927,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Humidity - Critical Limit",
-        "label": "Fuzzy Logic: Humidity - Critical Limit",
+        "label": "Humidity - Critical Limit",
         "order": 4,
         "width": 0,
         "height": 0,
         "topic": "set_humidityCritical",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "100",
-        "step": 1,
+        "step": "0.1",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -948,10 +948,12 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 890,
+        "x": 750,
         "y": 560,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -960,15 +962,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Temperature - Critical Limit",
-        "label": "Fuzzy Logic: Temperature - Critical Limit",
+        "label": "Temperature - Critical Limit",
         "order": 2,
         "width": 0,
         "height": 0,
         "topic": "set_temperatureCritical",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "50",
-        "step": 1,
+        "step": "0.1",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -981,10 +983,12 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 900,
+        "x": 760,
         "y": 520,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -993,15 +997,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Water Level - Critical Limit",
-        "label": "Fuzzy Logic: Water Level - Critical Limit",
+        "label": "Water Level - Critical Limit",
         "order": 6,
         "width": 0,
         "height": 0,
         "topic": "set_waterLevelCrititical",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "100",
-        "step": 1,
+        "step": "0.01",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -1014,10 +1018,12 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 900,
+        "x": 760,
         "y": 600,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -1026,15 +1032,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Soil Moisture Level - Critical Limit",
-        "label": "Fuzzy Logic: Soil Moisture Level - Critical Limit",
+        "label": "Soil Moisture Level - Critical Limit",
         "order": 9,
         "width": 0,
         "height": 0,
         "topic": "set_soilMoistureCritical",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "1200",
-        "step": 1,
+        "step": "1",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -1047,10 +1053,12 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 920,
+        "x": 780,
         "y": 640,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -1074,7 +1082,7 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 210,
+        "x": 70,
         "y": 680,
         "wires": [
             [
@@ -1108,7 +1116,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 530,
+        "x": 390,
         "y": 680,
         "wires": [
             [
@@ -1135,7 +1143,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 530,
+        "x": 390,
         "y": 760,
         "wires": [
             [
@@ -1162,7 +1170,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 520,
+        "x": 380,
         "y": 720,
         "wires": [
             [
@@ -1189,7 +1197,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 530,
+        "x": 390,
         "y": 800,
         "wires": [
             [
@@ -1203,15 +1211,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Humidity - Warning Limit",
-        "label": "Fuzzy Logic: Humidity - Warning Limit",
+        "label": "Humidity - Warning Limit",
         "order": 5,
         "width": 0,
         "height": 0,
         "topic": "set_humidityWarning",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "100",
-        "step": 1,
+        "step": "0.1",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -1224,10 +1232,12 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 890,
+        "x": 750,
         "y": 720,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -1236,15 +1246,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Temperature - Warning Limit",
-        "label": "Fuzzy Logic: Temperature - Warning Limit",
+        "label": "Temperature - Warning Limit",
         "order": 3,
         "width": 0,
         "height": 0,
         "topic": "set_temperatureWarning",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "50",
-        "step": 1,
+        "step": "0.1",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -1257,10 +1267,12 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 900,
+        "x": 760,
         "y": 680,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -1269,15 +1281,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Water Level - Warning Limit",
-        "label": "Fuzzy Logic: Water Level - Warning Limit",
+        "label": "Water Level - Warning Limit",
         "order": 7,
         "width": 0,
         "height": 0,
         "topic": "set_waterLevelWarning",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "100",
-        "step": 1,
+        "step": "0.01",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -1290,10 +1302,12 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 900,
+        "x": 760,
         "y": 760,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -1302,15 +1316,15 @@
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Soil Moisture Level - Warning Limit",
-        "label": "Fuzzy Logic: Soil Moisture Level - Warning Limit",
+        "label": "Soil Moisture Level - Warning Limit",
         "order": 8,
         "width": 0,
         "height": 0,
         "topic": "set_soilMoistureWarning",
-        "topicType": "msg",
+        "topicType": "str",
         "min": 0,
         "max": "1200",
-        "step": 1,
+        "step": "1",
         "tooltip": "",
         "delay": 300,
         "passthru": true,
@@ -1323,14 +1337,78 @@
         "iconPosition": "left",
         "iconInnerPosition": "inside",
         "spinner": "stacked",
-        "x": 920,
+        "x": 780,
         "y": 800,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
-        "id": "7ac715dfec1f1976",
+        "id": "338067bbcb3e96fd",
+        "type": "function",
+        "z": "3fe09573e6a332bc",
+        "name": "Universal Serial Input Packger",
+        "func": "//this function is called when one of the thresholds change\n\n//fuzzy logic value changed\n//get the variable type and value to change it to\nlet command = msg.topic;\nlet value = msg.payload;\n\n//dictionary mapping\n//map the 8 thresholds to different characters\n//skip 'F' as it will be used for the floodgate and 'I' for irrigation\nlet thresholdCharacters = {\n    \"set_temperatureWarning\" : \"A\",\n    \"set_temperatureCritical\" : \"B\",\n    \"set_humidityWarning\" : \"C\",\n    \"set_humidityCritical\": \"D\",\n    \"set_waterLevelWarning\" : \"E\",\n    \"set_waterLevelCritical\": \"G\",\n    \"set_soilMoistureWarning\" : \"H\",\n    \"set_soilMoistureCritical\": \"J\"\n}\n\n//check if the incoming message topic maches one of the dictionary keys\n//if it does 'package' it into a command that will be sent to serial port as input\nif(thresholdCharacters[command]){\n    //convert the numeric value into a float with 2dp\n    //it will automatically be converted to string when concatenated\n    let numericValue = parseFloat(value).toFixed(2);\n    \n    //package the data as a token\n    //e.g. \"A23\\n\" will mean change the temperature warning threshold to 23\n    msg.payload = thresholdCharacters[command] + numericValue + \"\\n\";\n\n    //now route it to the Alert Node serial monitor through USB\n    return msg;\n\n}\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1170,
+        "y": 640,
+        "wires": [
+            [
+                "81155be7ef763213",
+                "53287d17cf1c5cf3"
+            ]
+        ]
+    },
+    {
+        "id": "81155be7ef763213",
+        "type": "serial out",
+        "z": "3fe09573e6a332bc",
+        "name": "",
+        "serial": "03151ad733a4840a",
+        "x": 1390,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "53287d17cf1c5cf3",
+        "type": "debug",
+        "z": "3fe09573e6a332bc",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1340,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "12132a401f304c6c",
+        "type": "serial in",
+        "z": "3fe09573e6a332bc",
+        "name": "",
+        "serial": "03151ad733a4840a",
+        "x": 1150,
+        "y": 780,
+        "wires": [
+            [
+                "53287d17cf1c5cf3"
+            ]
+        ]
+    },
+    {
+        "id": "1c619b18d48f48fa",
         "type": "global-config",
         "env": [],
         "modules": {
