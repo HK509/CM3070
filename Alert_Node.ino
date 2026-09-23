@@ -257,6 +257,12 @@ void loop() {
       if(environmentStateOverride == 0){
         environmentStatus = 0;
         disasterType = 0;
+        //deactivate both floodgate and irrigation
+        //activate irrigation
+          mitigationTransmissionCommand.activateFloodgate = false;
+          mitigationTransmissionCommand.activateIrrigation = false;
+          mitigationTransmissionCommand.communicationCheck = 0xCC;
+          esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
       }
       //warning status
       else if(environmentStateOverride == 1 || environmentStateOverride == 2 || environmentStateOverride == 3){
@@ -264,24 +270,52 @@ void loop() {
         //wildfire
         if(environmentStateOverride == 1){
           disasterType = 1;
+          //activate irrigation
+          mitigationTransmissionCommand.activateFloodgate = false;
+          mitigationTransmissionCommand.activateIrrigation = true;
+          mitigationTransmissionCommand.communicationCheck = 0xCC;
+          esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
         }
         //flood
         else if(environmentStateOverride == 2){
           disasterType = 2;
+          //activate floodgate
+          //activate irrigation
+          mitigationTransmissionCommand.activateFloodgate = true;
+          mitigationTransmissionCommand.activateIrrigation = false;
+          mitigationTransmissionCommand.communicationCheck = 0xCC;
+          esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
         }
         //drought
         else{
           disasterType = 3;
+          //activate irrigation
+          mitigationTransmissionCommand.activateFloodgate = false;
+          mitigationTransmissionCommand.activateIrrigation = true;
+          mitigationTransmissionCommand.communicationCheck = 0xCC;
+          esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
         }
       }
       //critical status
       else if(environmentStateOverride == 4 || environmentStateOverride == 5){
         environmentStatus = 2;
+        //wildfire
         if(environmentStateOverride == 4){
           disasterType = 1;
+          //deactivate both floodgate and irrigation
+          mitigationTransmissionCommand.activateFloodgate = false;
+          mitigationTransmissionCommand.activateIrrigation = false;
+          mitigationTransmissionCommand.communicationCheck = 0xCC;
+          esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
         }
+        //flood
         else{
           disasterType = 2;
+          //activate floodgate
+          mitigationTransmissionCommand.activateFloodgate = true;
+          mitigationTransmissionCommand.activateIrrigation = false;
+          mitigationTransmissionCommand.communicationCheck = 0xCC;
+          esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
         }
       }
     }
