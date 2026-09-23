@@ -86,7 +86,11 @@ uint8_t mitigationNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
 
 
 //ensure that mitigation actions haven't been force enabled on dashboard
-bool manualOverrideActive = false;
+bool manualOverrideMitigationActive = false;
+//forced floodgate - 'F': Activate, 'K': Deactivate
+char forcedFloodgateAction = 'K';
+//forced irrigation - 'I': Activate, 'O': Deactivate
+char forcedIrrigationAction = 'O';
 
 
 //ESP-NOW transmission delivery feedback callback handler when data is sent
@@ -123,7 +127,7 @@ void onDataRecv(uint8_t * mac, uint8_t *incomingByte, uint8_t len) {
                                                       
 
   //now communicate with mitigation node if manual dashboard force override isn't enabled
-  if(!manualOverrideActive){
+  if(!manualOverrideMitigationActive){
     //now transmit the mitigation action control packet to the Mitigation Node
     Serial.println("Now communicating with Mitigation Node and sending actions");
     esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
@@ -194,7 +198,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  //listen to serial monitor to see if any fuzzy logic thresholds have been changed, the environment status has been overriden, or deep sleep durations have been changed
+  //listen to serial monitor to see if any fuzzy logic thresholds have been changed, the environment status has been overriden, or deep sleep durations have been changed, or forced mitigation actions
   if(Serial.available() > 0){
     //get the leading character identifier to map the variable threshold type
     char identifier = Serial.read();
@@ -297,6 +301,58 @@ void loop() {
       criticalSleepDuration = Serial.parseInt();
       Serial.print("criticalSleepDuration set to: ");
       Serial.println(criticalSleepDuration);
+    }
+
+    //forced mitigation controls
+    //activate floodgate
+    else if(identifier == 'F'){
+      manualOverrideMitigationActive = true;
+      forcedFloodgateAction = 'F';
+      forcedIrrigationAction = 'O';
+      mitigationTransmissionCommand.activateFloodgate = true;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xFF;
+      esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
+    }
+    //deactivate floodgate
+    else if(identifier == 'K'){
+      manualOverrideMitigationActive = true;
+      forcedFloodgateAction = 'K';
+      forcedIrrigationAction = 'O';
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xFF;
+      esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
+    }
+    //activate irrigation
+    else if(identifier == 'I'){
+      manualOverrideMitigationActive = true;
+      forcedFloodgateAction = 'K';
+      forcedIrrigationAction = 'I';
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = true;
+      mitigationTransmissionCommand.communicationCheck = 0xFF;
+      esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
+    }
+    //deactivate irrigation
+    else if(identifier == 'O'){
+      manualOverrideMitigationActive = true;
+      forcedFloodgateAction = 'K';
+      forcedIrrigationAction = 'O';
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xFF;
+      esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
+    }
+    //release controls
+    else if(identifier == 'R'){
+      manualOverrideMitigationActive = false;
+      forcedFloodgateAction = 'K';
+      forcedIrrigationAction = 'O';
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xFF;
+      esp_now_send(mitigationNode_MAC, (uint8_t *) &mitigationTransmissionCommand, sizeof(mitigationTransmissionCommand));
     }
 
     else{

@@ -568,133 +568,6 @@
         ]
     },
     {
-        "id": "6eca1f39f87fbaeb",
-        "type": "ui-button",
-        "z": "3fe09573e6a332bc",
-        "group": "5d599b96f2cfe014",
-        "name": "Force Floodgate Activation",
-        "label": "Force Floodgate Activation",
-        "order": 17,
-        "width": 0,
-        "height": 0,
-        "emulateClick": false,
-        "tooltip": "",
-        "color": "",
-        "bgcolor": "",
-        "className": "",
-        "icon": "",
-        "iconPosition": "left",
-        "payload": "F",
-        "payloadType": "str",
-        "topic": "topic",
-        "topicType": "msg",
-        "buttonColor": "",
-        "textColor": "",
-        "iconColor": "",
-        "enableClick": true,
-        "enablePointerdown": false,
-        "pointerdownPayload": "",
-        "pointerdownPayloadType": "str",
-        "enablePointerup": false,
-        "pointerupPayload": "",
-        "pointerupPayloadType": "str",
-        "x": 500,
-        "y": 1160,
-        "wires": [
-            [
-                "5306dc2afb1c2d21"
-            ]
-        ]
-    },
-    {
-        "id": "923f0b143819865d",
-        "type": "ui-button",
-        "z": "3fe09573e6a332bc",
-        "group": "5d599b96f2cfe014",
-        "name": "Force Irrigation Activation",
-        "label": "Force Irrigation Activation",
-        "order": 18,
-        "width": 0,
-        "height": 0,
-        "emulateClick": false,
-        "tooltip": "",
-        "color": "",
-        "bgcolor": "",
-        "className": "",
-        "icon": "",
-        "iconPosition": "left",
-        "payload": "I",
-        "payloadType": "str",
-        "topic": "topic",
-        "topicType": "msg",
-        "buttonColor": "",
-        "textColor": "",
-        "iconColor": "",
-        "enableClick": true,
-        "enablePointerdown": false,
-        "pointerdownPayload": "",
-        "pointerdownPayloadType": "str",
-        "enablePointerup": false,
-        "pointerupPayload": "",
-        "pointerupPayloadType": "str",
-        "x": 490,
-        "y": 1200,
-        "wires": [
-            [
-                "5306dc2afb1c2d21"
-            ]
-        ]
-    },
-    {
-        "id": "756c70f12012b1bb",
-        "type": "ui-button",
-        "z": "3fe09573e6a332bc",
-        "group": "5d599b96f2cfe014",
-        "name": "Release Mitigation Controls (auto)",
-        "label": "Release Mitigation Controls (auto)",
-        "order": 19,
-        "width": 0,
-        "height": 0,
-        "emulateClick": false,
-        "tooltip": "",
-        "color": "",
-        "bgcolor": "",
-        "className": "",
-        "icon": "",
-        "iconPosition": "left",
-        "payload": "R",
-        "payloadType": "str",
-        "topic": "topic",
-        "topicType": "msg",
-        "buttonColor": "",
-        "textColor": "",
-        "iconColor": "",
-        "enableClick": true,
-        "enablePointerdown": false,
-        "pointerdownPayload": "",
-        "pointerdownPayloadType": "str",
-        "enablePointerup": false,
-        "pointerupPayload": "",
-        "pointerupPayloadType": "str",
-        "x": 520,
-        "y": 1240,
-        "wires": [
-            [
-                "5306dc2afb1c2d21"
-            ]
-        ]
-    },
-    {
-        "id": "5306dc2afb1c2d21",
-        "type": "serial out",
-        "z": "3fe09573e6a332bc",
-        "name": "",
-        "serial": "03151ad733a4840a",
-        "x": 790,
-        "y": 1200,
-        "wires": []
-    },
-    {
         "id": "3952dd8defddaffa",
         "type": "ui-dropdown",
         "z": "3fe09573e6a332bc",
@@ -1376,7 +1249,7 @@
         "type": "function",
         "z": "3fe09573e6a332bc",
         "name": "Universal Serial Input Packger",
-        "func": "//this function is called when one of the thresholds change\n\n//fuzzy logic value changed\n//get the variable type and value to change it to\nlet command = msg.topic;\nlet value = msg.payload;\n\n//dictionary mapping\n//map the 8 thresholds to different characters\n//skip 'F' as it will be used for the floodgate and 'I' for irrigation\nlet thresholdCharacters = {\n    \"set_temperatureWarning\" : \"A\",\n    \"set_temperatureCritical\" : \"B\",\n    \"set_humidityWarning\" : \"C\",\n    \"set_humidityCritical\": \"D\",\n    \"set_waterLevelWarning\" : \"E\",\n    \"set_waterLevelCritical\": \"G\",\n    \"set_soilMoistureWarning\" : \"H\",\n    \"set_soilMoistureCritical\": \"J\"\n}\n\n//handle environment state overrides\nif(command == \"set_state\"){\n    //package the data as a token\n    //e.g. \"S-1\\n\" will mean default auto, \"S0\\n\" will mean force normal\n    msg.payload = \"S\" + parseInt(value) + \"\\n\";\n    return msg;\n}\n\n//check if the incoming message topic maches one of the dictionary keys\n//if it does 'package' it into a command that will be sent to serial port as input\nif(thresholdCharacters[command]){\n    //convert the numeric value into a float with 2dp\n    //it will automatically be converted to string when concatenated\n    let numericValue = parseFloat(value).toFixed(2);\n    \n    //package the data as a token\n    //e.g. \"A23\\n\" will mean change the temperature warning threshold to 23\n    msg.payload = thresholdCharacters[command] + numericValue + \"\\n\";\n\n    //now route it to the Alert Node serial monitor through USB\n    return msg;\n}\n\n//handle deep sleep duration changes\n//normal sleep = X, warning sleep = Y, critical sleep = Z\nif(command == \"set_normalSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"X\" + seconds + \"\\n\";\n    return msg;\n}\nif(command == \"set_warningSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"Y\" + seconds + \"\\n\";\n    return msg;\n}\nif(command == \"set_criticalSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"Z\" + seconds + \"\\n\";\n    return msg;\n}\n\nreturn null;",
+        "func": "//get the variable type and value to change it to\nlet command = msg.topic;\nlet value = msg.payload;\n\n//dictionary mapping\n//map the 8 thresholds to different characters\n//skip 'F' as it will be used for the floodgate and 'I' for irrigation\nlet thresholdCharacters = {\n    \"set_temperatureWarning\" : \"A\",\n    \"set_temperatureCritical\" : \"B\",\n    \"set_humidityWarning\" : \"C\",\n    \"set_humidityCritical\": \"D\",\n    \"set_waterLevelWarning\" : \"E\",\n    \"set_waterLevelCritical\": \"G\",\n    \"set_soilMoistureWarning\" : \"H\",\n    \"set_soilMoistureCritical\": \"J\"\n}\n\n//handle environment state overrides\nif(command == \"set_state\"){\n    //package the data as a token\n    //e.g. \"S-1\\n\" will mean default auto, \"S0\\n\" will mean force normal\n    msg.payload = \"S\" + parseInt(value) + \"\\n\";\n    return msg;\n}\n\n//check if the incoming message topic maches one of the dictionary keys\n//if it does 'package' it into a command that will be sent to serial port as input\nif(thresholdCharacters[command]){\n    //convert the numeric value into a float with 2dp\n    //it will automatically be converted to string when concatenated\n    let numericValue = parseFloat(value).toFixed(2);\n    \n    //package the data as a token\n    //e.g. \"A23\\n\" will mean change the temperature warning threshold to 23\n    msg.payload = thresholdCharacters[command] + numericValue + \"\\n\";\n\n    //now route it to the Alert Node serial monitor through USB\n    return msg;\n}\n\n//handle deep sleep duration changes\n//normal sleep = X, warning sleep = Y, critical sleep = Z\nif(command == \"set_normalSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"X\" + seconds + \"\\n\";\n    return msg;\n}\nif(command == \"set_warningSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"Y\" + seconds + \"\\n\";\n    return msg;\n}\nif(command == \"set_criticalSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"Z\" + seconds + \"\\n\";\n    return msg;\n}\n\n//handle force mitigation actions\nif(command == \"set_floodgate\" || \"set_irrigation\" || \"set_releaseMitigation\"){\n    //token is simply the value as each state will have different value\n    msg.payload = value + \"\\n\";\n    return msg;\n}\n\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1743,7 +1616,172 @@
         "wires": []
     },
     {
-        "id": "c751453371786026",
+        "id": "3779a713f1f9616c",
+        "type": "ui-button",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "name": "Release Mitigation Controls (auto)",
+        "label": "Release Mitigation Controls (auto)",
+        "order": 19,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "R",
+        "payloadType": "str",
+        "topic": "set_releaseMitigation",
+        "topicType": "str",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 820,
+        "y": 1220,
+        "wires": [
+            [
+                "338067bbcb3e96fd",
+                "7adc8236d563da28",
+                "84ec47b06ec40239"
+            ]
+        ]
+    },
+    {
+        "id": "50fc09ded6a77a1c",
+        "type": "ui-switch",
+        "z": "3fe09573e6a332bc",
+        "name": "Force Floodgate Activation",
+        "label": "Force Floodgate Activation",
+        "group": "5d599b96f2cfe014",
+        "order": 17,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "set_floodgate",
+        "topicType": "str",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "F",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "K",
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "x": 800,
+        "y": 1120,
+        "wires": [
+            [
+                "338067bbcb3e96fd",
+                "84ec47b06ec40239"
+            ]
+        ]
+    },
+    {
+        "id": "e5499539977cfdce",
+        "type": "ui-switch",
+        "z": "3fe09573e6a332bc",
+        "name": "Force Irrigation Activation",
+        "label": "Force Irrigation Activation",
+        "group": "5d599b96f2cfe014",
+        "order": 18,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "set_irrigation",
+        "topicType": "str",
+        "style": "",
+        "className": "",
+        "layout": "row-spread",
+        "clickableArea": "switch",
+        "onvalue": "I",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "O",
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "x": 810,
+        "y": 1160,
+        "wires": [
+            [
+                "338067bbcb3e96fd",
+                "7adc8236d563da28"
+            ]
+        ]
+    },
+    {
+        "id": "7adc8236d563da28",
+        "type": "change",
+        "z": "3fe09573e6a332bc",
+        "name": "Reset Floodgate Control",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "K",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 510,
+        "y": 1120,
+        "wires": [
+            [
+                "50fc09ded6a77a1c"
+            ]
+        ]
+    },
+    {
+        "id": "84ec47b06ec40239",
+        "type": "change",
+        "z": "3fe09573e6a332bc",
+        "name": "Reset Irrigation Control",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "O",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 510,
+        "y": 1160,
+        "wires": [
+            [
+                "e5499539977cfdce"
+            ]
+        ]
+    },
+    {
+        "id": "ef629340e9d40625",
         "type": "global-config",
         "env": [],
         "modules": {
