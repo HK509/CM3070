@@ -17,12 +17,16 @@ const int BUZZER_PIN = D5;
 //create a LCD object
 LiquidCrystal_I2C lcdScreen(0x27, 16, 2);
 
-//create variable storing current and previous environment status - (0: good - green, 1: warning - amber, 2: warning - red)
+//create variables storing current and previous environment status - (0: good - green, 1: warning - amber, 2: warning - red)
 int environmentStatus = 0;
 int previousStatus = -1;
 
 //create a variable to see if environment status has been overidden in Node RED dashboard - (-1: auto, 0: force normal, 1: force warning, 2: force critical)
 int environmentStateOverride = -1;
+
+//create variables to see if a disaster has been evaluated and the previous - (0: normal/ none, 1: wildfire, 2: flood, 3: drought) 
+int disasterType = 0;
+int previousDisasterType = -1;
 
 //initialise fuzzy logic sensor thresholds
 float temperatureWarning = 23.5; 
@@ -233,7 +237,7 @@ void loop() {
       Serial.println(soilMoistureCritical);
     }
 
-    //change environmentStatus/ force the environment state
+    //change environmentStatus/ force the environment state and disaster type - immediate override
     else if(identifier == 'S'){
       environmentStateOverride = Serial.parseInt();
       Serial.print("environmentStateOverride updated to: ");
@@ -243,16 +247,36 @@ void loop() {
       //normal status
       if(environmentStateOverride == 0){
         environmentStatus = 0;
+        disasterType = 0;
       }
       //warning status
       else if(environmentStateOverride == 1 || environmentStateOverride == 2 || environmentStateOverride == 3){
         environmentStatus = 1;
+        //wildfire
+        if(environmentStateOverride == 1){
+          disasterType = 1;
+        }
+        //flood
+        else if(environmentStateOverride == 2){
+          disasterType = 2;
+        }
+        //drought
+        else{
+          disasterType = 3;
+        }
       }
       //critical status
       else if(environmentStateOverride == 4 || environmentStateOverride == 5){
         environmentStatus = 2;
+        if(environmentStateOverride == 4){
+          disasterType = 1;
+        }
+        else{
+          disasterType = 2;
+        }
       }
     }
+
     else{
 
     }
@@ -285,7 +309,7 @@ void updateStatus(){
   operateLeds();
 
   //status changed to normal
-  if(environmentStatus == 0 && previousStatus !=0){
+  if(environmentStatus == 0 && previousStatus !=0 || ((disasterType != previousDisasterType) && environmentStatus==0)){
     lcdScreen.clear();
     displayNormalText();
 
@@ -293,10 +317,11 @@ void updateStatus(){
     noTone(BUZZER_PIN);
 
     previousStatus = 0;
+    previousDisasterType = disasterType;
   } 
 
   //status changed to WARNING
-  if(environmentStatus == 1 && previousStatus !=1){
+  if(environmentStatus == 1 && previousStatus !=1 || ((disasterType != previousDisasterType) && environmentStatus==1)){
     lcdScreen.clear();
     displayWarningText();
 
@@ -306,13 +331,15 @@ void updateStatus(){
     playWarningAlarm();
 
     previousStatus = 1;
+    previousDisasterType = disasterType;
   }
 
   //status changed to CRITICAL
-  if(environmentStatus == 2 && previousStatus !=2){
+  if(environmentStatus == 2 && previousStatus !=2 || ((disasterType != previousDisasterType) && environmentStatus==2)){
     lcdScreen.clear();
     displayCriticalText();
     previousStatus = 2;
+    previousDisasterType = disasterType;
   }
 }
 
@@ -329,16 +356,29 @@ void displayNormalText() {
 void displayWarningText() {
   lcdScreen.setCursor(0, 0);       
   lcdScreen.print("Alert Node");                  
-  lcdScreen.setCursor(0, 1);       
-  lcdScreen.print("WARNING");
+  lcdScreen.setCursor(0, 1);
+  if(disasterType == 1){     
+    lcdScreen.print("WARNING - W");
+  }
+  else if(disasterType == 2){     
+    lcdScreen.print("WARNING - F");
+  }
+  else if (disasterType == 3){     
+    lcdScreen.print("WARNING - D");
+  }
 }
 
 //function that displays corresponding text when the environment is in a CRITICAL state
 void displayCriticalText() {
   lcdScreen.setCursor(0, 0);       
   lcdScreen.print("Alert Node");                  
-  lcdScreen.setCursor(0, 1);       
-  lcdScreen.print("CRITICAL");
+  lcdScreen.setCursor(0, 1);
+  if(disasterType == 1){      
+    lcdScreen.print("CRITICAL - W");
+  }
+  else if(disasterType == 2){      
+    lcdScreen.print("CRITICAL - F");
+  }
 }
 
 
@@ -435,7 +475,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //Rule: If temperature is high, and humidity is low, or the water level is rising, then the threat of flood is critical
   float floodRisk = max(waterLevelFloodRisk, min(humidityRisk, temperatureRisk));
 
-  //see if there has been a environmental status override from the node RED dashboard, if so set packets correspondingly
+  //see if there has been a environmental status override from the node RED dashboard, if so set packets correspondingly and sets disaster type
   if(environmentStateOverride != -1){
     //force normal state
     if(environmentStateOverride == 0){
@@ -443,6 +483,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
+      disasterType = 0;
       return 0;
     }
     //force Wildfire Warning
@@ -451,6 +492,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = true;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
+      disasterType = 1;
       return 1;
     }
     //force flood Warning
@@ -459,6 +501,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateFloodgate = true;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
+      disasterType = 2;
       return 1;
     }
     //force drought Warning
@@ -467,6 +510,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = true;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
+      disasterType = 3;
       return 1;
     }
     //force Wildfire Critical
@@ -475,6 +519,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
+      disasterType = 1;
       return 2;
     }
     //focre Flood Critical
@@ -483,6 +528,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateFloodgate = true;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
+      disasterType = 2;
       return 2;
     }
 
@@ -500,46 +546,51 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
+    disasterType = 1;
     return 2;
   }
 
   //next critical - active flood
   //30 seconds Sensor Node sleep, open the floodgate and close irrigation system, set environment status to 2 (CRITICAL)
-  else if(environmentStateOverride == 5 || floodRisk >= 0.7){
+  else if(floodRisk >= 0.7){
     calculatedSleepDurationPacket.sleepDuration = 30;
     mitigationTransmissionCommand.activateFloodgate = true;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
+    disasterType = 2;
     return 2;
   }
 
   //wildfire warning
   //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
-  else if(environmentStateOverride == 1 || wildfireRisk >= 0.35){
+  else if(wildfireRisk >= 0.35){
     calculatedSleepDurationPacket.sleepDuration = 60;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = true;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
+    disasterType = 1;
     return 1;
   }
 
   //flood warning
   //60 seconds Sensor Node sleep, open the floodgate and deactivate irrigation system, set environment status to 1 (WARNING)
-  else if(environmentStateOverride == 2 || floodRisk >= 0.35){
+  else if(floodRisk >= 0.35){
     calculatedSleepDurationPacket.sleepDuration = 60;
     mitigationTransmissionCommand.activateFloodgate = true;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
+    disasterType = 2;
     return 1;
   }
 
   //drought warning
   //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
-  else if(environmentStateOverride == 3 || droughtRisk >= 0.35){
+  else if(droughtRisk >= 0.35){
     calculatedSleepDurationPacket.sleepDuration = 60;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = true;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
+    disasterType = 3;
     return 1;
   }
 
@@ -550,6 +601,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
+    disasterType = 0;
     return 0;
   }
 
