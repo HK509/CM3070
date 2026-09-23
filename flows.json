@@ -699,8 +699,8 @@
         "type": "ui-dropdown",
         "z": "3fe09573e6a332bc",
         "group": "5d599b96f2cfe014",
-        "name": "Force Environment State Override",
-        "label": "Select Option:",
+        "name": "Force Environment Status State Override",
+        "label": "Environment Status State Override:",
         "tooltip": "",
         "order": 1,
         "width": 0,
@@ -711,31 +711,53 @@
         "clearable": false,
         "options": [
             {
+                "label": "Auto (default)",
+                "value": -1,
+                "type": "num"
+            },
+            {
                 "label": "Force Normal",
-                "value": "S0",
-                "type": "str"
+                "value": 0,
+                "type": "num"
             },
             {
-                "label": "Force WARNING",
-                "value": "S1",
-                "type": "str"
+                "label": "Force WARNING Wildfire",
+                "value": 1,
+                "type": "num"
             },
             {
-                "label": "Force CRITICAL",
-                "value": "S2",
-                "type": "str"
+                "label": "Force WARNING Flood",
+                "value": 2,
+                "type": "num"
+            },
+            {
+                "label": "Force WARNING Drought",
+                "value": 3,
+                "type": "num"
+            },
+            {
+                "label": "Force CRITICAL Wildfire",
+                "value": 4,
+                "type": "num"
+            },
+            {
+                "label": "Force CRITICAL Flood",
+                "value": 5,
+                "type": "num"
             }
         ],
         "payload": "",
-        "topic": "topic",
-        "topicType": "msg",
+        "topic": "set_state",
+        "topicType": "str",
         "className": "",
         "typeIsComboBox": true,
         "msgTrigger": "onChange",
-        "x": 520,
+        "x": 760,
         "y": 460,
         "wires": [
-            []
+            [
+                "338067bbcb3e96fd"
+            ]
         ]
     },
     {
@@ -832,7 +854,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 390,
+        "x": 350,
         "y": 520,
         "wires": [
             [
@@ -859,7 +881,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 380,
+        "x": 340,
         "y": 600,
         "wires": [
             [
@@ -886,7 +908,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 370,
+        "x": 330,
         "y": 560,
         "wires": [
             [
@@ -913,7 +935,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 390,
+        "x": 350,
         "y": 640,
         "wires": [
             [
@@ -1093,7 +1115,8 @@
                 "774e351cb16225fa",
                 "816e9025710e4435",
                 "fb3dba6d7d748b38",
-                "f653560819b7e36a"
+                "f653560819b7e36a",
+                "55228df3362275d0"
             ]
         ]
     },
@@ -1116,7 +1139,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 390,
+        "x": 350,
         "y": 680,
         "wires": [
             [
@@ -1143,7 +1166,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 390,
+        "x": 350,
         "y": 760,
         "wires": [
             [
@@ -1170,7 +1193,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 380,
+        "x": 340,
         "y": 720,
         "wires": [
             [
@@ -1197,7 +1220,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 390,
+        "x": 350,
         "y": 800,
         "wires": [
             [
@@ -1350,7 +1373,7 @@
         "type": "function",
         "z": "3fe09573e6a332bc",
         "name": "Universal Serial Input Packger",
-        "func": "//this function is called when one of the thresholds change\n\n//fuzzy logic value changed\n//get the variable type and value to change it to\nlet command = msg.topic;\nlet value = msg.payload;\n\n//dictionary mapping\n//map the 8 thresholds to different characters\n//skip 'F' as it will be used for the floodgate and 'I' for irrigation\nlet thresholdCharacters = {\n    \"set_temperatureWarning\" : \"A\",\n    \"set_temperatureCritical\" : \"B\",\n    \"set_humidityWarning\" : \"C\",\n    \"set_humidityCritical\": \"D\",\n    \"set_waterLevelWarning\" : \"E\",\n    \"set_waterLevelCritical\": \"G\",\n    \"set_soilMoistureWarning\" : \"H\",\n    \"set_soilMoistureCritical\": \"J\"\n}\n\n//check if the incoming message topic maches one of the dictionary keys\n//if it does 'package' it into a command that will be sent to serial port as input\nif(thresholdCharacters[command]){\n    //convert the numeric value into a float with 2dp\n    //it will automatically be converted to string when concatenated\n    let numericValue = parseFloat(value).toFixed(2);\n    \n    //package the data as a token\n    //e.g. \"A23\\n\" will mean change the temperature warning threshold to 23\n    msg.payload = thresholdCharacters[command] + numericValue + \"\\n\";\n\n    //now route it to the Alert Node serial monitor through USB\n    return msg;\n\n}\n\nreturn null;",
+        "func": "//this function is called when one of the thresholds change\n\n//fuzzy logic value changed\n//get the variable type and value to change it to\nlet command = msg.topic;\nlet value = msg.payload;\n\n//dictionary mapping\n//map the 8 thresholds to different characters\n//skip 'F' as it will be used for the floodgate and 'I' for irrigation\nlet thresholdCharacters = {\n    \"set_temperatureWarning\" : \"A\",\n    \"set_temperatureCritical\" : \"B\",\n    \"set_humidityWarning\" : \"C\",\n    \"set_humidityCritical\": \"D\",\n    \"set_waterLevelWarning\" : \"E\",\n    \"set_waterLevelCritical\": \"G\",\n    \"set_soilMoistureWarning\" : \"H\",\n    \"set_soilMoistureCritical\": \"J\"\n}\n\n//handle environment state overrides\nif(command == \"set_state\"){\n    //package the data as a token\n    //e.g. \"S-1\\n\" will mean default auto, \"S0\\n\" will mean force normal\n    msg.payload = \"S\" + parseInt(value) + \"\\n\";\n    return msg;\n}\n\n//check if the incoming message topic maches one of the dictionary keys\n//if it does 'package' it into a command that will be sent to serial port as input\nif(thresholdCharacters[command]){\n    //convert the numeric value into a float with 2dp\n    //it will automatically be converted to string when concatenated\n    let numericValue = parseFloat(value).toFixed(2);\n    \n    //package the data as a token\n    //e.g. \"A23\\n\" will mean change the temperature warning threshold to 23\n    msg.payload = thresholdCharacters[command] + numericValue + \"\\n\";\n\n    //now route it to the Alert Node serial monitor through USB\n    return msg;\n\n}\n\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1408,7 +1431,34 @@
         ]
     },
     {
-        "id": "1c619b18d48f48fa",
+        "id": "55228df3362275d0",
+        "type": "change",
+        "z": "3fe09573e6a332bc",
+        "name": "Set Default Force Environment Status State to Auto",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "-1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 370,
+        "y": 460,
+        "wires": [
+            [
+                "3952dd8defddaffa"
+            ]
+        ]
+    },
+    {
+        "id": "227956b67e2881e2",
         "type": "global-config",
         "env": [],
         "modules": {

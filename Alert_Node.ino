@@ -21,6 +21,9 @@ LiquidCrystal_I2C lcdScreen(0x27, 16, 2);
 int environmentStatus = 0;
 int previousStatus = -1;
 
+//create a variable to see if environment status has been overidden in Node RED dashboard - (-1: auto, 0: force normal, 1: force warning, 2: force critical)
+int environmentStateOverride = -1;
+
 //initialise fuzzy logic sensor thresholds
 float temperatureWarning = 23.5; 
 float temperatureCritical = 30.0; 
@@ -182,11 +185,12 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  //listen to serial monitor to see if any fuzzy logic thresholds have been changed
+  //listen to serial monitor to see if any fuzzy logic thresholds have been changed, or the environment status has been overriden
   if(Serial.available() > 0){
     //get the leading character identifier to map the variable threshold type
     char identifier = Serial.read();
 
+    //change fuzzy logic variable thresholds
     //now check which variable to change
     if(identifier == 'A'){
       temperatureWarning = Serial.parseFloat();
@@ -227,6 +231,27 @@ void loop() {
       soilMoistureCritical = Serial.parseFloat();
       Serial.print("soilMoistureCritical updated to: ");
       Serial.println(soilMoistureCritical);
+    }
+
+    //change environmentStatus/ force the environment state
+    else if(identifier == 'S'){
+      environmentStateOverride = Serial.parseInt();
+      Serial.print("environmentStateOverride updated to: ");
+      Serial.println(environmentStateOverride);
+
+      //ensure override takes place:
+      //normal status
+      if(environmentStateOverride == 0){
+        environmentStatus = 0;
+      }
+      //warning status
+      else if(environmentStateOverride == 1 || environmentStateOverride == 2 || environmentStateOverride == 3){
+        environmentStatus = 1;
+      }
+      //critical status
+      else if(environmentStateOverride == 4 || environmentStateOverride == 5){
+        environmentStatus = 2;
+      }
     }
     else{
 
@@ -410,6 +435,59 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //Rule: If temperature is high, and humidity is low, or the water level is rising, then the threat of flood is critical
   float floodRisk = max(waterLevelFloodRisk, min(humidityRisk, temperatureRisk));
 
+  //see if there has been a environmental status override from the node RED dashboard, if so set packets correspondingly
+  if(environmentStateOverride != -1){
+    //force normal state
+    if(environmentStateOverride == 0){
+      calculatedSleepDurationPacket.sleepDuration = 300;
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xAA;
+      return 0;
+    }
+    //force Wildfire Warning
+    else if(environmentStateOverride == 1){
+      calculatedSleepDurationPacket.sleepDuration = 60;
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = true;
+      mitigationTransmissionCommand.communicationCheck = 0xAA;
+      return 1;
+    }
+    //force flood Warning
+    else if(environmentStateOverride == 2){
+      calculatedSleepDurationPacket.sleepDuration = 60;
+      mitigationTransmissionCommand.activateFloodgate = true;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xAA;
+      return 1;
+    }
+    //force drought Warning
+    else if(environmentStateOverride == 3){
+      calculatedSleepDurationPacket.sleepDuration = 60;
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = true;
+      mitigationTransmissionCommand.communicationCheck = 0xAA;
+      return 1;
+    }
+    //force Wildfire Critical
+    else if(environmentStateOverride == 4){
+      calculatedSleepDurationPacket.sleepDuration = 30;
+      mitigationTransmissionCommand.activateFloodgate = false;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xAA;
+      return 2;
+    }
+    //focre Flood Critical
+    else if(environmentStateOverride == 5){
+      calculatedSleepDurationPacket.sleepDuration = 30;
+      mitigationTransmissionCommand.activateFloodgate = true;
+      mitigationTransmissionCommand.activateIrrigation = false;
+      mitigationTransmissionCommand.communicationCheck = 0xAA;
+      return 2;
+    }
+
+  }
+
 
   //defuzzification - converting the calculated infered risk indexes into environment status (0: Normal, 1: WARNING, 2: CRITICAL)
   //also create priorities - wildfire, flood then drought
@@ -427,7 +505,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
 
   //next critical - active flood
   //30 seconds Sensor Node sleep, open the floodgate and close irrigation system, set environment status to 2 (CRITICAL)
-  else if(floodRisk >= 0.7){
+  else if(environmentStateOverride == 5 || floodRisk >= 0.7){
     calculatedSleepDurationPacket.sleepDuration = 30;
     mitigationTransmissionCommand.activateFloodgate = true;
     mitigationTransmissionCommand.activateIrrigation = false;
@@ -437,7 +515,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
 
   //wildfire warning
   //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
-  else if(wildfireRisk >= 0.35){
+  else if(environmentStateOverride == 1 || wildfireRisk >= 0.35){
     calculatedSleepDurationPacket.sleepDuration = 60;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = true;
@@ -447,7 +525,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
 
   //flood warning
   //60 seconds Sensor Node sleep, open the floodgate and deactivate irrigation system, set environment status to 1 (WARNING)
-  else if(floodRisk >= 0.35){
+  else if(environmentStateOverride == 2 || floodRisk >= 0.35){
     calculatedSleepDurationPacket.sleepDuration = 60;
     mitigationTransmissionCommand.activateFloodgate = true;
     mitigationTransmissionCommand.activateIrrigation = false;
@@ -457,7 +535,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
 
   //drought warning
   //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
-  else if(droughtRisk >= 0.35){
+  else if(environmentStateOverride == 3 || droughtRisk >= 0.35){
     calculatedSleepDurationPacket.sleepDuration = 60;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = true;
