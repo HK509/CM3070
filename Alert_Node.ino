@@ -70,6 +70,11 @@ struct sleepDurationPacket{
 //create a variable of the calculated sleep duration packet data structure defined that will be sent to the Sensor Node as acknowledgement
 sleepDurationPacket calculatedSleepDurationPacket;
 
+//set default sleep duration values (seconds) and store as variables
+int normalSleepDuration = 300;
+int warningSleepDuration = 60;
+int criticalSleepDuration = 30;
+
 
 //store MAC Address for Sensor Node (Node 1)
 uint8_t sensorNode_MAC[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}; //REDACTED
@@ -189,7 +194,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  //listen to serial monitor to see if any fuzzy logic thresholds have been changed, or the environment status has been overriden
+  //listen to serial monitor to see if any fuzzy logic thresholds have been changed, the environment status has been overriden, or deep sleep durations have been changed
   if(Serial.available() > 0){
     //get the leading character identifier to map the variable threshold type
     char identifier = Serial.read();
@@ -275,6 +280,23 @@ void loop() {
           disasterType = 2;
         }
       }
+    }
+
+    //change deep sleep durations
+    else if(identifier == 'X'){
+      normalSleepDuration = Serial.parseInt();
+      Serial.print("normalSleepDuration set to: ");
+      Serial.println(normalSleepDuration);
+    }
+    else if(identifier == 'Y'){
+      warningSleepDuration = Serial.parseInt();
+      Serial.print("warningSleepDuration set to: ");
+      Serial.println(warningSleepDuration);
+    }
+    else if(identifier == 'Z'){
+      criticalSleepDuration = Serial.parseInt();
+      Serial.print("criticalSleepDuration set to: ");
+      Serial.println(criticalSleepDuration);
     }
 
     else{
@@ -479,7 +501,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   if(environmentStateOverride != -1){
     //force normal state
     if(environmentStateOverride == 0){
-      calculatedSleepDurationPacket.sleepDuration = 300;
+      calculatedSleepDurationPacket.sleepDuration = normalSleepDuration;
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -488,7 +510,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     }
     //force Wildfire Warning
     else if(environmentStateOverride == 1){
-      calculatedSleepDurationPacket.sleepDuration = 60;
+      calculatedSleepDurationPacket.sleepDuration = warningSleepDuration;
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = true;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -497,7 +519,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     }
     //force flood Warning
     else if(environmentStateOverride == 2){
-      calculatedSleepDurationPacket.sleepDuration = 60;
+      calculatedSleepDurationPacket.sleepDuration = warningSleepDuration;
       mitigationTransmissionCommand.activateFloodgate = true;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -506,7 +528,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     }
     //force drought Warning
     else if(environmentStateOverride == 3){
-      calculatedSleepDurationPacket.sleepDuration = 60;
+      calculatedSleepDurationPacket.sleepDuration = warningSleepDuration;
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = true;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -515,7 +537,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     }
     //force Wildfire Critical
     else if(environmentStateOverride == 4){
-      calculatedSleepDurationPacket.sleepDuration = 30;
+      calculatedSleepDurationPacket.sleepDuration = criticalSleepDuration;
       mitigationTransmissionCommand.activateFloodgate = false;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -524,7 +546,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     }
     //focre Flood Critical
     else if(environmentStateOverride == 5){
-      calculatedSleepDurationPacket.sleepDuration = 30;
+      calculatedSleepDurationPacket.sleepDuration = criticalSleepDuration;
       mitigationTransmissionCommand.activateFloodgate = true;
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -542,7 +564,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //most critical - active wildfire
   //30 seconds Sensor Node sleep, close the floodgate and irrigation system for safety, set environment status to 2 (CRITICAL)
   if(wildfireRisk >= 0.7){
-    calculatedSleepDurationPacket.sleepDuration = 30;
+    calculatedSleepDurationPacket.sleepDuration = criticalSleepDuration;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -553,7 +575,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //next critical - active flood
   //30 seconds Sensor Node sleep, open the floodgate and close irrigation system, set environment status to 2 (CRITICAL)
   else if(floodRisk >= 0.7){
-    calculatedSleepDurationPacket.sleepDuration = 30;
+    calculatedSleepDurationPacket.sleepDuration = criticalSleepDuration;
     mitigationTransmissionCommand.activateFloodgate = true;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -564,7 +586,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //wildfire warning
   //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
   else if(wildfireRisk >= 0.35){
-    calculatedSleepDurationPacket.sleepDuration = 60;
+    calculatedSleepDurationPacket.sleepDuration = warningSleepDuration;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = true;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -575,7 +597,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //flood warning
   //60 seconds Sensor Node sleep, open the floodgate and deactivate irrigation system, set environment status to 1 (WARNING)
   else if(floodRisk >= 0.35){
-    calculatedSleepDurationPacket.sleepDuration = 60;
+    calculatedSleepDurationPacket.sleepDuration = warningSleepDuration;
     mitigationTransmissionCommand.activateFloodgate = true;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -586,7 +608,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //drought warning
   //60 seconds Sensor Node sleep, close the floodgate and activate irrigation system, set environment status to 1 (WARNING)
   else if(droughtRisk >= 0.35){
-    calculatedSleepDurationPacket.sleepDuration = 60;
+    calculatedSleepDurationPacket.sleepDuration = warningSleepDuration;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = true;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
@@ -597,7 +619,7 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
   //normal conditions now
   //300 seconds Sensor Node sleep (5 minutes), close the floodgate and deactivate irrigation system, set environment status to 0 (Normal)
   else{
-    calculatedSleepDurationPacket.sleepDuration = 300;
+    calculatedSleepDurationPacket.sleepDuration = normalSleepDuration;
     mitigationTransmissionCommand.activateFloodgate = false;
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;

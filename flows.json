@@ -514,8 +514,8 @@
         "mapurl": "",
         "mapopt": "",
         "mapwms": false,
-        "x": 850,
-        "y": 1160,
+        "x": 830,
+        "y": 1440,
         "wires": []
     },
     {
@@ -539,8 +539,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 410,
-        "y": 1160,
+        "x": 390,
+        "y": 1440,
         "wires": [
             [
                 "34bb72a408c1eeae"
@@ -559,8 +559,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 630,
-        "y": 1160,
+        "x": 610,
+        "y": 1440,
         "wires": [
             [
                 "6d5bcdd41c50a643"
@@ -574,7 +574,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Force Floodgate Activation",
         "label": "Force Floodgate Activation",
-        "order": 10,
+        "order": 17,
         "width": 0,
         "height": 0,
         "emulateClick": false,
@@ -598,8 +598,8 @@
         "enablePointerup": false,
         "pointerupPayload": "",
         "pointerupPayloadType": "str",
-        "x": 520,
-        "y": 860,
+        "x": 500,
+        "y": 1160,
         "wires": [
             [
                 "5306dc2afb1c2d21"
@@ -613,7 +613,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Force Irrigation Activation",
         "label": "Force Irrigation Activation",
-        "order": 11,
+        "order": 18,
         "width": 0,
         "height": 0,
         "emulateClick": false,
@@ -637,8 +637,8 @@
         "enablePointerup": false,
         "pointerupPayload": "",
         "pointerupPayloadType": "str",
-        "x": 510,
-        "y": 900,
+        "x": 490,
+        "y": 1200,
         "wires": [
             [
                 "5306dc2afb1c2d21"
@@ -652,7 +652,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Release Mitigation Controls (auto)",
         "label": "Release Mitigation Controls (auto)",
-        "order": 12,
+        "order": 19,
         "width": 0,
         "height": 0,
         "emulateClick": false,
@@ -676,8 +676,8 @@
         "enablePointerup": false,
         "pointerupPayload": "",
         "pointerupPayloadType": "str",
-        "x": 540,
-        "y": 940,
+        "x": 520,
+        "y": 1240,
         "wires": [
             [
                 "5306dc2afb1c2d21"
@@ -690,8 +690,8 @@
         "z": "3fe09573e6a332bc",
         "name": "",
         "serial": "03151ad733a4840a",
-        "x": 810,
-        "y": 900,
+        "x": 790,
+        "y": 1200,
         "wires": []
     },
     {
@@ -702,7 +702,7 @@
         "name": "Force Environment Status State Override",
         "label": "Environment Status State Override:",
         "tooltip": "",
-        "order": 1,
+        "order": 2,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -753,7 +753,7 @@
         "typeIsComboBox": true,
         "msgTrigger": "onChange",
         "x": 760,
-        "y": 460,
+        "y": 580,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -831,8 +831,8 @@
         "url": "",
         "number": "",
         "name": "",
-        "x": 590,
-        "y": 1100,
+        "x": 570,
+        "y": 1380,
         "wires": []
     },
     {
@@ -855,7 +855,7 @@
         "to": "",
         "reg": false,
         "x": 350,
-        "y": 520,
+        "y": 640,
         "wires": [
             [
                 "d9e72fdb9f6dc23b"
@@ -882,7 +882,7 @@
         "to": "",
         "reg": false,
         "x": 340,
-        "y": 600,
+        "y": 720,
         "wires": [
             [
                 "864d677b7cb88a3c"
@@ -909,7 +909,7 @@
         "to": "",
         "reg": false,
         "x": 330,
-        "y": 560,
+        "y": 680,
         "wires": [
             [
                 "2aebd4eeef71e960"
@@ -936,7 +936,7 @@
         "to": "",
         "reg": false,
         "x": 350,
-        "y": 640,
+        "y": 760,
         "wires": [
             [
                 "2a0959b64a7ea9ca"
@@ -950,7 +950,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Humidity - Critical Limit",
         "label": "Humidity - Critical Limit",
-        "order": 4,
+        "order": 6,
         "width": 0,
         "height": 0,
         "topic": "set_humidityCritical",
@@ -971,7 +971,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 750,
-        "y": 560,
+        "y": 680,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -985,7 +985,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Temperature - Critical Limit",
         "label": "Temperature - Critical Limit",
-        "order": 2,
+        "order": 4,
         "width": 0,
         "height": 0,
         "topic": "set_temperatureCritical",
@@ -1006,7 +1006,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 760,
-        "y": 520,
+        "y": 640,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -1020,7 +1020,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Water Level - Critical Limit",
         "label": "Water Level - Critical Limit",
-        "order": 6,
+        "order": 8,
         "width": 0,
         "height": 0,
         "topic": "set_waterLevelCrititical",
@@ -1041,7 +1041,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 760,
-        "y": 600,
+        "y": 720,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -1055,7 +1055,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Soil Moisture Level - Critical Limit",
         "label": "Soil Moisture Level - Critical Limit",
-        "order": 9,
+        "order": 11,
         "width": 0,
         "height": 0,
         "topic": "set_soilMoistureCritical",
@@ -1076,7 +1076,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 780,
-        "y": 640,
+        "y": 760,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -1105,7 +1105,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 70,
-        "y": 680,
+        "y": 760,
         "wires": [
             [
                 "d314f8ffe6e3863f",
@@ -1116,7 +1116,10 @@
                 "816e9025710e4435",
                 "fb3dba6d7d748b38",
                 "f653560819b7e36a",
-                "55228df3362275d0"
+                "55228df3362275d0",
+                "720cf2c8882b3bee",
+                "1dc6eaea54b977a2",
+                "95db6f9217939fd8"
             ]
         ]
     },
@@ -1140,7 +1143,7 @@
         "to": "",
         "reg": false,
         "x": 350,
-        "y": 680,
+        "y": 800,
         "wires": [
             [
                 "7528ebf281aa472a"
@@ -1167,7 +1170,7 @@
         "to": "",
         "reg": false,
         "x": 350,
-        "y": 760,
+        "y": 880,
         "wires": [
             [
                 "a7c016df7c3a1eda"
@@ -1194,7 +1197,7 @@
         "to": "",
         "reg": false,
         "x": 340,
-        "y": 720,
+        "y": 840,
         "wires": [
             [
                 "7dbc69f79a8d1a41"
@@ -1221,7 +1224,7 @@
         "to": "",
         "reg": false,
         "x": 350,
-        "y": 800,
+        "y": 920,
         "wires": [
             [
                 "2fdffc4acae76f3e"
@@ -1235,7 +1238,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Humidity - Warning Limit",
         "label": "Humidity - Warning Limit",
-        "order": 5,
+        "order": 7,
         "width": 0,
         "height": 0,
         "topic": "set_humidityWarning",
@@ -1256,7 +1259,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 750,
-        "y": 720,
+        "y": 840,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -1270,7 +1273,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Temperature - Warning Limit",
         "label": "Temperature - Warning Limit",
-        "order": 3,
+        "order": 5,
         "width": 0,
         "height": 0,
         "topic": "set_temperatureWarning",
@@ -1291,7 +1294,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 760,
-        "y": 680,
+        "y": 800,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -1305,7 +1308,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Water Level - Warning Limit",
         "label": "Water Level - Warning Limit",
-        "order": 7,
+        "order": 9,
         "width": 0,
         "height": 0,
         "topic": "set_waterLevelWarning",
@@ -1326,7 +1329,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 760,
-        "y": 760,
+        "y": 880,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -1340,7 +1343,7 @@
         "group": "5d599b96f2cfe014",
         "name": "Fuzzy Logic: Soil Moisture Level - Warning Limit",
         "label": "Soil Moisture Level - Warning Limit",
-        "order": 8,
+        "order": 10,
         "width": 0,
         "height": 0,
         "topic": "set_soilMoistureWarning",
@@ -1361,7 +1364,7 @@
         "iconInnerPosition": "inside",
         "spinner": "stacked",
         "x": 780,
-        "y": 800,
+        "y": 920,
         "wires": [
             [
                 "338067bbcb3e96fd"
@@ -1373,15 +1376,15 @@
         "type": "function",
         "z": "3fe09573e6a332bc",
         "name": "Universal Serial Input Packger",
-        "func": "//this function is called when one of the thresholds change\n\n//fuzzy logic value changed\n//get the variable type and value to change it to\nlet command = msg.topic;\nlet value = msg.payload;\n\n//dictionary mapping\n//map the 8 thresholds to different characters\n//skip 'F' as it will be used for the floodgate and 'I' for irrigation\nlet thresholdCharacters = {\n    \"set_temperatureWarning\" : \"A\",\n    \"set_temperatureCritical\" : \"B\",\n    \"set_humidityWarning\" : \"C\",\n    \"set_humidityCritical\": \"D\",\n    \"set_waterLevelWarning\" : \"E\",\n    \"set_waterLevelCritical\": \"G\",\n    \"set_soilMoistureWarning\" : \"H\",\n    \"set_soilMoistureCritical\": \"J\"\n}\n\n//handle environment state overrides\nif(command == \"set_state\"){\n    //package the data as a token\n    //e.g. \"S-1\\n\" will mean default auto, \"S0\\n\" will mean force normal\n    msg.payload = \"S\" + parseInt(value) + \"\\n\";\n    return msg;\n}\n\n//check if the incoming message topic maches one of the dictionary keys\n//if it does 'package' it into a command that will be sent to serial port as input\nif(thresholdCharacters[command]){\n    //convert the numeric value into a float with 2dp\n    //it will automatically be converted to string when concatenated\n    let numericValue = parseFloat(value).toFixed(2);\n    \n    //package the data as a token\n    //e.g. \"A23\\n\" will mean change the temperature warning threshold to 23\n    msg.payload = thresholdCharacters[command] + numericValue + \"\\n\";\n\n    //now route it to the Alert Node serial monitor through USB\n    return msg;\n\n}\n\nreturn null;",
+        "func": "//this function is called when one of the thresholds change\n\n//fuzzy logic value changed\n//get the variable type and value to change it to\nlet command = msg.topic;\nlet value = msg.payload;\n\n//dictionary mapping\n//map the 8 thresholds to different characters\n//skip 'F' as it will be used for the floodgate and 'I' for irrigation\nlet thresholdCharacters = {\n    \"set_temperatureWarning\" : \"A\",\n    \"set_temperatureCritical\" : \"B\",\n    \"set_humidityWarning\" : \"C\",\n    \"set_humidityCritical\": \"D\",\n    \"set_waterLevelWarning\" : \"E\",\n    \"set_waterLevelCritical\": \"G\",\n    \"set_soilMoistureWarning\" : \"H\",\n    \"set_soilMoistureCritical\": \"J\"\n}\n\n//handle environment state overrides\nif(command == \"set_state\"){\n    //package the data as a token\n    //e.g. \"S-1\\n\" will mean default auto, \"S0\\n\" will mean force normal\n    msg.payload = \"S\" + parseInt(value) + \"\\n\";\n    return msg;\n}\n\n//check if the incoming message topic maches one of the dictionary keys\n//if it does 'package' it into a command that will be sent to serial port as input\nif(thresholdCharacters[command]){\n    //convert the numeric value into a float with 2dp\n    //it will automatically be converted to string when concatenated\n    let numericValue = parseFloat(value).toFixed(2);\n    \n    //package the data as a token\n    //e.g. \"A23\\n\" will mean change the temperature warning threshold to 23\n    msg.payload = thresholdCharacters[command] + numericValue + \"\\n\";\n\n    //now route it to the Alert Node serial monitor through USB\n    return msg;\n}\n\n//handle deep sleep duration changes\n//normal sleep = X, warning sleep = Y, critical sleep = Z\nif(command == \"set_normalSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"X\" + seconds + \"\\n\";\n    return msg;\n}\nif(command == \"set_warningSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"Y\" + seconds + \"\\n\";\n    return msg;\n}\nif(command == \"set_criticalSleep\"){\n    let seconds = parseInt(value);\n    msg.payload = \"Z\" + seconds + \"\\n\";\n    return msg;\n}\n\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1170,
-        "y": 640,
+        "x": 1190,
+        "y": 780,
         "wires": [
             [
                 "81155be7ef763213",
@@ -1396,7 +1399,7 @@
         "name": "",
         "serial": "03151ad733a4840a",
         "x": 1390,
-        "y": 640,
+        "y": 720,
         "wires": []
     },
     {
@@ -1413,7 +1416,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 1340,
-        "y": 780,
+        "y": 900,
         "wires": []
     },
     {
@@ -1423,7 +1426,7 @@
         "name": "",
         "serial": "03151ad733a4840a",
         "x": 1150,
-        "y": 780,
+        "y": 900,
         "wires": [
             [
                 "53287d17cf1c5cf3"
@@ -1450,7 +1453,7 @@
         "to": "",
         "reg": false,
         "x": 370,
-        "y": 460,
+        "y": 580,
         "wires": [
             [
                 "3952dd8defddaffa"
@@ -1458,7 +1461,289 @@
         ]
     },
     {
-        "id": "227956b67e2881e2",
+        "id": "bb73d2bc85a21b9b",
+        "type": "ui-text",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "Fuzzy Logic Variable Thresholds",
+        "label": "------------- Fuzzy Logic Variable Thresholds -------------",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 290,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "e8aa929a149a8b3f",
+        "type": "ui-text",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Force Environment State Override",
+        "label": "------------- Force Environment State Override -------------",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 580,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "bc2796ef145c2727",
+        "type": "ui-text",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "order": 16,
+        "width": 0,
+        "height": 0,
+        "name": "Force Mitigation Actions",
+        "label": "------------- Force Mitigation Actions -------------",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1130,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "173f39b436f01431",
+        "type": "ui-number-input",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "name": "Deep Sleep: Normal Conditions Duration",
+        "label": "Deep Sleep: Normal Conditions Duration (seconds)",
+        "order": 13,
+        "width": 0,
+        "height": 0,
+        "topic": "set_normalSleep",
+        "topicType": "str",
+        "min": 0,
+        "max": "5000",
+        "step": 1,
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 760,
+        "y": 980,
+        "wires": [
+            [
+                "338067bbcb3e96fd"
+            ]
+        ]
+    },
+    {
+        "id": "797474856d82d633",
+        "type": "ui-number-input",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "name": "Deep Sleep: Warning Conditions Duration",
+        "label": "Deep Sleep: Warning Conditions Duration (seconds)",
+        "order": 14,
+        "width": 0,
+        "height": 0,
+        "topic": "set_warningSleep",
+        "topicType": "str",
+        "min": 0,
+        "max": "5000",
+        "step": 1,
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 760,
+        "y": 1020,
+        "wires": [
+            [
+                "338067bbcb3e96fd"
+            ]
+        ]
+    },
+    {
+        "id": "714a4a6288ea6008",
+        "type": "ui-number-input",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "name": "Deep Sleep: Critical Conditions Duration",
+        "label": "Deep Sleep: Critical Conditions Duration (seconds)",
+        "order": 15,
+        "width": 0,
+        "height": 0,
+        "topic": "set_criticalSleep",
+        "topicType": "str",
+        "min": 0,
+        "max": "5000",
+        "step": 1,
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 760,
+        "y": 1060,
+        "wires": [
+            [
+                "338067bbcb3e96fd"
+            ]
+        ]
+    },
+    {
+        "id": "720cf2c8882b3bee",
+        "type": "change",
+        "z": "3fe09573e6a332bc",
+        "name": "Set Default Normal Deep Sleep Duration",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "300",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 980,
+        "wires": [
+            [
+                "173f39b436f01431"
+            ]
+        ]
+    },
+    {
+        "id": "1dc6eaea54b977a2",
+        "type": "change",
+        "z": "3fe09573e6a332bc",
+        "name": "Set Default Warning Deep Sleep Duration",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "60",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 1020,
+        "wires": [
+            [
+                "797474856d82d633"
+            ]
+        ]
+    },
+    {
+        "id": "95db6f9217939fd8",
+        "type": "change",
+        "z": "3fe09573e6a332bc",
+        "name": "Set Default Critical Deep Sleep Duration",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "30",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 1060,
+        "wires": [
+            [
+                "714a4a6288ea6008"
+            ]
+        ]
+    },
+    {
+        "id": "6c6faa38bb9c145e",
+        "type": "ui-text",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "order": 12,
+        "width": 0,
+        "height": 0,
+        "name": "Deep Sleep Duration ",
+        "label": "------------- Deep Sleep Duration  -------------",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 840,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "c751453371786026",
         "type": "global-config",
         "env": [],
         "modules": {
