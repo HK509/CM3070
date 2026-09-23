@@ -430,6 +430,12 @@ void updateStatus(){
 
     previousStatus = 0;
     previousDisasterType = disasterType;
+    Serial.print("Current environmentStatus: ");
+    Serial.print(environmentStatus);
+    Serial.print(" | ");
+    Serial.print("disasterType: ");
+    Serial.println(disasterType);
+
   } 
 
   //status changed to WARNING
@@ -444,6 +450,11 @@ void updateStatus(){
 
     previousStatus = 1;
     previousDisasterType = disasterType;
+    Serial.print("Current environmentStatus: ");
+    Serial.print(environmentStatus);
+    Serial.print(" | ");
+    Serial.print("disasterType: ");
+    Serial.println(disasterType);
   }
 
   //status changed to CRITICAL
@@ -452,6 +463,11 @@ void updateStatus(){
     displayCriticalText();
     previousStatus = 2;
     previousDisasterType = disasterType;
+    Serial.print("Current environmentStatus: ");
+    Serial.print(environmentStatus);
+    Serial.print(" | ");
+    Serial.print("disasterType: ");
+    Serial.println(disasterType);
   }
 }
 
