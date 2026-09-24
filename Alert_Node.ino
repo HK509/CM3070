@@ -21,7 +21,7 @@ const char* password = "//REDACTED";
 
 //Static IP Configuration Variables
 IPAddress local_IP(192, 168, REDACTED, REDACTED);
-IPAddress gateway(192, 168, REDACTED, REDACTED);
+IPAddress gateway(192, REDACTED, REDACTED, REDACTED);
 IPAddress subnet(255, REDACTED, REDACTED, REDACTED);
 
 //set the PORT for web server
@@ -255,6 +255,7 @@ void setup() {
 
   //define the webserver pages
   server.on("/", getIndex);
+  server.on("/history", getHistory);
   //start the webserver
   server.begin();
   Serial.println("Server listening");
@@ -856,9 +857,56 @@ dataHistoryObj getLatestReading(){
 
 //main web dashboard page
 void getIndex(){
-  String html = "<html><body><h1>AERO web dashboard!</h1><p>Server is working!</p></body></html>";
+  //concatinate strings representing html code to make up the web dashboard
+  //make the web dashboard responsive to different devices 
+  String html = "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'>";
+
+  //concatinate styling - similar to 'stylesheet'
+  //body style - background is very pale light green
+  html += "<style>body{font-family: sans-serif; text-align: center; padding: 20px; background:#f4f7f6;}";
+  //most recent sensor reading and environment status style
+  html += ".currentSensorReadingSection{background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px; margin: 20px auto}";
+  //button styling - blue button with white text
+  html += ".button{display: inline-block; padding: 12px 24px; background: #007bff; color: white; border-radius: 5px; margin-top: 15px; font-weight: bold;}</style></head>";
+
+  //main body of webpage
+  //display header
+  html += "<body><h1><A.E.R.O. web dashboard!</h1>";
+
+  //display most recent sensor reading data
+  html += "<div class='currentSensorReadingSection'>";
+  html += "<h3>Most Recent Sensor Readings</h3>";
+  html += "<p><strong>Timestamp: </strong>" + String(getLatestReading().timestamp) + "</p>";
+  html += "<p><strong>Temperature: </strong>" + String(getLatestReading().temperature) + "°C</p>";
+  html += "<p><strong>Humidity: </strong>" + String(getLatestReading().humidity) + "%</p>";
+  html += "<p><strong>Water Level: </strong>" + String(getLatestReading().waterLevel) + "cm</p>";
+  html += "<p><strong>Soil Moisture Level: </strong>" + String(getLatestReading().soilMoisture) + "</p>";
+  html += "</div>";
+
+  //now display environment condition and disaster type corresponding text
+  html += checkConditionAndGetText();
+
+  //add the button to go to the sensor reading history page
+  html += "<br><a href='/history' class='button'>View Past Sensor Reading History</a>";
+
+  //close the body and html page
+  html += "</body></html>";
+
+
+  //now send the webpage to the browser
   server.send(200, "text/html", html);
 }
+
+
+//the sensor history log web dashboard page
+void getHistory(){
+  String html = "<html><body><h1>This is the sensor reading history log page</h1></body></html>";
+
+  //now send the webpage to the browser
+  server.send(200, "text/html", html);
+}
+
+
 
 //text to display on the web dashboard when there is a warning of a wildfire
 String getWarningWildfireText(){
