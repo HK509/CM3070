@@ -1022,7 +1022,56 @@ void getIndex(){
 
 //the sensor history log web dashboard page
 void getHistory(){
-  String html = "<html><body><h1>This is the sensor reading history log page</h1></body></html>";
+  //concatinate strings representing html code to make up the web dashboard
+  //make the web dashboard responsive to different devices, and refresh every 2 minutes (120 seconds)
+  String html = "<html><head><meta http-equiv='refresh' content='120' name='viewport' content='width=device-width, initial-scale=1.0'>";
+  html += "<meta charset='UTF-8'>";
+
+  //stylesheet
+  //body style - background colour is light grey
+  html += "<style>body{font-family: sans-serif; padding: 20px; background: #FAFAFA; text-align: center;}";
+  //table styling
+  html += "table{width: 100%; max-width: 600px; margin: 20px auto; border-collapse: collapse; background: white}";
+  html += "th, td{padding: 10px; border: 1px solid #ddd; text-align: center} th{background: #007bff; color: white;} </style>";
+
+  //main body of webpage
+  //display header
+  html += "<body>";
+  html += "<h1>Past Sensor Reading History</h1>";
+
+  //button to go back to dashboard
+  html += "<a href='/' class='button'>Back to homepage</a><br>";
+
+  //start the table grid layout and name the columns
+  html += "<table><tr><th>Time</th><th>Temperature</th><th>Humidity</th><th>Water Level</th><th>Soil Moisture</th><th>Environment evaluation</th></tr>";
+  
+  //now iterate over sensor readings from newest to oldest entry (newest at top)
+  for(int i = totalHistoryEntries - 1; i >= 0; i--){
+    int targetIndex = (currentFilledHistoryIndex - totalHistoryEntries + i + max_entries) % max_entries;
+    dataHistoryObj currentEntry = historyLog[targetIndex];
+
+    //map the row colour to the entry record's environmental status
+    String rowColour = (currentEntry.environmentStatus == 2) ? "#8C2939" : ((currentEntry.environmentStatus == 1 ) ? "#ffebbd" : "#FFFFFF");
+    //now evaluate the row text colour - white for critical dark red, otherwise black 
+    String rowTextColour = (currentEntry.environmentStatus == 2) ? "#FFFFFF" : "#000000"; 
+    
+    //dictonaries to map the environment status and disaster type integers to words
+    String statusString[] = {"Normal", "Warning", "Critical"};
+    String disasterString[] = {"Normal", "Wildfire", "Flood", "Drought"};
+    
+    //now add the data to the table row with colour styling
+    html += "<tr style='background:" + rowColour + "; color:" + rowTextColour + ";'>";
+    html += "<td>" + currentEntry.timestamp + "</td>";
+    html += "<td>" + String(currentEntry.temperature) + "</td>";
+    html += "<td>" + String(currentEntry.humidity) + "</td>";
+    html += "<td>" + String(currentEntry.waterLevel) + "</td>";
+    html += "<td>" + String(currentEntry.soilMoisture) + "</td>";
+    html += "<td>" + String(statusString[currentEntry.environmentStatus]) + " - " + String(disasterString[currentEntry.disasterType]) + "</td>";
+    html += "</tr>";
+  }
+
+  //close the table, body and html page
+  html += "</table></body></html>";
 
   //now send the webpage to the browser
   server.send(200, "text/html", html);
