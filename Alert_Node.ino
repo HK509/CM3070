@@ -18,8 +18,8 @@
 
 
 //WiFi network connectivity variables
-const char* ssid = "Wrong SSID";
-const char* password = "Wrong Pass";
+const char* ssid = "//REDACTED";
+const char* password = "//REDACTED";
 
 //Static IP Configuration Variables
 IPAddress local_IP(192, REDACTED, REDACTED, REDACTED);
@@ -1259,8 +1259,19 @@ String checkConditionAndGetText(){
 
 //function that starts captive portal access point
 void startCaptivePortalAccessPoint(){
+
+  //update it to AP_Station mode
+   //WiFi.mode(WIFI_AP_STA);
+   //delay(100);
+
+  //force the microcontroller to drop 'FaryLink' as Access point name
+  //WiFi.softAPdisconnect(true); 
+  //WiFi.disconnect(true);
+  //give it some time to clear registery
+  //delay(100);
+
   //assign a fixed IP for the access point - it will be the local IP of the Alert Node's microcontroller
-  IPAddress apIP = (192, 168, 4, 1);
+  IPAddress apIP(192, 168, 4, 1);
 
   //now configure the access point - local IP, gateway (same as local IP) and subnet
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
@@ -1268,14 +1279,15 @@ void startCaptivePortalAccessPoint(){
   //now broadcast the wireless access point
   //A.E.R.O Emergency Network will be the SSID (the name you can see to connect)
   //"@Abc123" will be the password used to connect to the access point
-  WiFi.softAP("A.E.R.O. Emergency Network", "@Abc123");
+  //1 is channel number and 0 is so that it is visible
+  WiFi.softAP("AERO Emergency Network", "@Abc1234", 1, 0);
 
   //start the DNS server at port 53 to route all web requests
   //using '*' means that all website requests are routed to the same IP as the Access Point
   dnsServer.start(53, "*", apIP);
 
   //confirm that the Aceess point is live
-  Serial.println("Fallback Captive Portal Access Point is live. Password is '@Abc123'");
+  Serial.println("Fallback Captive Portal Access Point is live. Password is '@Abc1234'");
   networkStatus = 1;
   connectivityTypeChanged = true;
 }
