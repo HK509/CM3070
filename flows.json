@@ -552,7 +552,7 @@
         "type": "function",
         "z": "3fe09573e6a332bc",
         "name": "GPS Pin Generator",
-        "func": "// define local prototype coordinate matrices\n// use London Regents Park for disaster monitoring simulation as an example\nlet centerLat = 51.5284;\nlet centerLon = -0.1544;\n\n//build the multi-node geospatial payload tracker arrays\nlet markers = [\n    {\n        command: \"addmarker\",\n        name: \"Sensor Node (Node 1)\",\n        lat: centerLat + 0.0005,\n        lon: centerLon - 0.0004,\n        icon: \"fa-rss\",\n        iconColor: \"green\",\n        layer: \"Field Infrastructure\",\n        message: \"Environment Sensor Node\"\n    },\n\n    {\n        command: \"addmarker\",\n        name: \"Mitigation Actor (Node 2)\",\n        lat: centerLat - 0.0004,\n        lon: centerLon + 0.0005,\n        icon: \"fa-gear\",\n        iconColor: \"darkred\",\n        layer: \"Actuator Infrastructure\",\n        message: \"Physical Servo Floodgate and Crop Irrigation Pump Relays\"\n    },\n\n    {\n        command: \"addmarker\",\n        name: \"Alert Gateway Node (Node 3)\",\n        lat: centerLat,\n        lon: centerLon,\n        icon: \"fa-shield\",\n        iconColor: \"blue\",\n        layer: \"Gateway Core\",\n        message: \"Fuzzy Logic Computational Hub Engine & Dashboards\"\n    }\n];\n\n//loop through each marker and push it to the map node\nmarkers.forEach(function(marker) {\n    node.send({ payload: marker });\n});",
+        "func": "// define local prototype coordinate matrices\n// use London Regents Park for disaster monitoring simulation as an example\nlet centerLat = 51.5284;\nlet centerLon = -0.1544;\n\n//build the multi-node geospatial payload tracker arrays\nlet markers = [\n    {\n        command: \"addmarker\",\n        name: \"Sensor Node (Node 1)\",\n        lat: centerLat + 0.0005,\n        lon: centerLon - 0.0004,\n        iconColor: \"green\",\n        layer: \"Field Infrastructure\",\n        message: \"Environment Sensor Node\"\n    },\n\n    {\n        command: \"addmarker\",\n        name: \"Mitigation Actor (Node 2)\",\n        lat: centerLat - 0.0004,\n        lon: centerLon + 0.0005,\n        iconColor: \"darkred\",\n        layer: \"Actuator Infrastructure\",\n        message: \"Physical Servo Floodgate and Irrigation Pump Relays\"\n    },\n\n    {\n        command: \"addmarker\",\n        name: \"Alert Gateway Node (Node 3)\",\n        lat: centerLat,\n        lon: centerLon,\n        iconColor: \"blue\",\n        layer: \"Gateway Core\",\n        message: \"Fuzzy Logic Edge Processor & Dashboards\"\n    }\n];\n\n//loop through each marker and push it to the map node\nmarkers.forEach(function(marker) {\n    node.send({ payload: marker });\n});",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -704,8 +704,8 @@
         "url": "",
         "number": "",
         "name": "",
-        "x": 570,
-        "y": 1380,
+        "x": 790,
+        "y": 1360,
         "wires": []
     },
     {
@@ -1829,7 +1829,73 @@
         "wires": []
     },
     {
-        "id": "e2179d20d2d3d572",
+        "id": "157d900092e736a4",
+        "type": "change",
+        "z": "3fe09573e6a332bc",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "A.E.R.O. System Operator has manually triggered a critical emergency broadcast! Evacuate / check local nodes immediately.",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 1360,
+        "wires": [
+            [
+                "85dbaab58fde6e9a"
+            ]
+        ]
+    },
+    {
+        "id": "6238b71d5a2d3498",
+        "type": "ui-button",
+        "z": "3fe09573e6a332bc",
+        "group": "5d599b96f2cfe014",
+        "name": "Send Twilio SMS Alert",
+        "label": "Send Twilio SMS Alert",
+        "order": 20,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "red",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 380,
+        "y": 1360,
+        "wires": [
+            [
+                "157d900092e736a4"
+            ]
+        ]
+    },
+    {
+        "id": "128d54d0525d0c7a",
         "type": "global-config",
         "env": [],
         "modules": {
