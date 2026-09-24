@@ -10,14 +10,16 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
+//additional library for fallback captive portal
+#include <DNSServer.h>
 
 //library for LCD screen
 #include <LiquidCrystal_I2C.h>
 
 
 //WiFi network connectivity variables
-const char* ssid = "//REDACTED";
-const char* password = "//REDACTED";
+const char* ssid = "Wrong SSID";
+const char* password = "Wrong Pass";
 
 //Static IP Configuration Variables
 IPAddress local_IP(192, REDACTED, REDACTED, REDACTED);
@@ -26,6 +28,15 @@ IPAddress subnet(255, REDACTED, REDACTED, REDACTED);
 
 //set the PORT for web server
 ESP8266WebServer server(80);
+
+//initialise the DNS Server object;
+DNSServer dnsServer;
+
+//variable to check connectivity type - 0: WiFi, 1: captive portal access point, -1: need to connect to captive portal
+int networkStatus = 0;
+//check to see if connectivity type changed;
+bool connectivityTypeChanged = false;
+
 
 
 //define LED pins
@@ -202,16 +213,35 @@ void setup() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
 
+  //try connecting to WiFi 20 times, without it it will infinetly try not going through the rest of the code and processes
+  int connectionRetries = 0;
+  int maxRetries = 20;
+
   //for now keep the chip in the microcontroller waiting, otherwise the fallback will be captive portal
-  while(WiFi.status() != WL_CONNECTED){
+  while(WiFi.status() != WL_CONNECTED && connectionRetries < maxRetries){
     delay(500);
     Serial.println("waiting to connect to WiFi");
+    //add 1 to the connection retries variable
+    connectionRetries++;
   } 
 
-  //Wi-Fi connected, now print it to serial monitor
-  Serial.println("Wi-Fi connected successfully!");
-  Serial.print("Local Dashboard URL: http://");
-  Serial.println(WiFi.localIP());
+  //if Wi-Fi connected, now print it to serial monitor
+  if(WiFi.status() == WL_CONNECTED){
+    Serial.println("Wi-Fi connected successfully!");
+    Serial.print("Local Dashboard URL: http://");
+    Serial.println(WiFi.localIP());
+
+    //set network connectivity type to WiFi
+    networkStatus = 0;
+    connectivityTypeChanged = true;
+  }
+  //WiFi failed to connect - use captive portal
+  else{
+    Serial.println("Router not found or connected. Activating fallback captive portal access point");
+    //set network connectivity type to initialise captive portal
+    networkStatus = -1;
+    connectivityTypeChanged = true;
+  }
   
   //initialise the LCD screen and its backlight
   lcdScreen.init();
@@ -256,6 +286,8 @@ void setup() {
   //define the webserver pages
   server.on("/", getIndex);
   server.on("/history", getHistory);
+  //fallback to the index page if an incorrect route is typed
+  server.onNotFound(getIndex);
   //start the webserver
   server.begin();
   Serial.println("Server listening");
@@ -267,6 +299,24 @@ void loop() {
 
   //listen to webserver if anyone is trying to view it, handle incoming client requests
   server.handleClient();
+
+  //continously check if WiFi is connected (not Internet), if it isn't then start captive portal access point only once (as to not reinitialise the captive portal)
+  if(WiFi.status() != WL_CONNECTED && networkStatus == -1){
+    //run the DNS server to catch connections to it
+    dnsServer.processNextRequest();
+
+    //start the access point if it isn't already
+    startCaptivePortalAccessPoint(); 
+  }
+  //if connected when not previously, then update networkStatus and update on LCD screen
+  else{
+    if(WiFi.status() == WL_CONNECTED && networkStatus != 0){
+      networkStatus = 0;
+      connectivityTypeChanged = true;
+    }
+  }
+
+  //keep the microcontroller safe from crashes which could ruin webserver/ captive portal and ESP-NOW handling
   yield();
 
   //listen to serial monitor to see if any fuzzy logic thresholds have been changed, the environment status has been overriden, or deep sleep durations have been changed, or forced mitigation actions
@@ -491,8 +541,8 @@ void updateStatus(){
   //change LEDs illumination based on new current envirconment condition status
   operateLeds();
 
-  //status changed to normal
-  if(environmentStatus == 0 && previousStatus !=0 || ((disasterType != previousDisasterType) && environmentStatus==0)){
+  //status changed to normal (or connectivityTypeChanged and there is a normal state)
+  if(environmentStatus == 0 && previousStatus !=0 || ((disasterType != previousDisasterType) && environmentStatus==0) || connectivityTypeChanged == true && environmentStatus == 0){
     lcdScreen.clear();
     displayNormalText();
 
@@ -507,10 +557,13 @@ void updateStatus(){
     Serial.print("disasterType: ");
     Serial.println(disasterType);
 
+    //set connectivityTypeChanged to false as it has been registered and updated by LCD
+    connectivityTypeChanged = false;
+
   } 
 
-  //status changed to WARNING
-  if(environmentStatus == 1 && previousStatus !=1 || ((disasterType != previousDisasterType) && environmentStatus==1)){
+  //status changed to WARNING (or connectivityTypeChanged and there is a warning state)
+  if(environmentStatus == 1 && previousStatus !=1 || ((disasterType != previousDisasterType) && environmentStatus==1) || connectivityTypeChanged == true && environmentStatus == 1){
     lcdScreen.clear();
     displayWarningText();
 
@@ -526,10 +579,13 @@ void updateStatus(){
     Serial.print(" | ");
     Serial.print("disasterType: ");
     Serial.println(disasterType);
+
+    //set connectivityTypeChanged to false as it has been registered and updated by LCD
+    connectivityTypeChanged = false;
   }
 
-  //status changed to CRITICAL
-  if(environmentStatus == 2 && previousStatus !=2 || ((disasterType != previousDisasterType) && environmentStatus==2)){
+  //status changed to CRITICAL (or connectivityTypeChanged and there is a critical state)
+  if(environmentStatus == 2 && previousStatus !=2 || ((disasterType != previousDisasterType) && environmentStatus==2) || connectivityTypeChanged == true && environmentStatus == 2){
     lcdScreen.clear();
     displayCriticalText();
     previousStatus = 2;
@@ -539,14 +595,25 @@ void updateStatus(){
     Serial.print(" | ");
     Serial.print("disasterType: ");
     Serial.println(disasterType);
+
+    //set connectivityTypeChanged to false as it has been registered and updated by LCD
+    connectivityTypeChanged = false;
   }
 }
 
 
 //function that displays corresponding text when the environment is in a normal state
 void displayNormalText() {
-  lcdScreen.setCursor(0, 0);       
-  lcdScreen.print("Alert Node");                  
+  lcdScreen.setCursor(0, 0);
+  if(networkStatus == 0){       
+    lcdScreen.print(WiFi.localIP());
+  }
+  else if(networkStatus == 1){
+    lcdScreen.print("Access Point");
+  }
+  else{
+    lcdScreen.print("Connecting");
+  }                
   lcdScreen.setCursor(0, 1);       
   lcdScreen.print("Normal");
 }
@@ -554,7 +621,15 @@ void displayNormalText() {
 //function that displays corresponding text when the environment is in a WARNING state
 void displayWarningText() {
   lcdScreen.setCursor(0, 0);       
-  lcdScreen.print("Alert Node");                  
+  if(networkStatus == 0){       
+    lcdScreen.print(WiFi.localIP());
+  }
+  else if(networkStatus == 1){
+    lcdScreen.print("Access Point");
+  }
+  else{
+    lcdScreen.print("Connecting");
+  }                  
   lcdScreen.setCursor(0, 1);
   if(disasterType == 1){     
     lcdScreen.print("WARNING - W");
@@ -570,7 +645,15 @@ void displayWarningText() {
 //function that displays corresponding text when the environment is in a CRITICAL state
 void displayCriticalText() {
   lcdScreen.setCursor(0, 0);       
-  lcdScreen.print("Alert Node");                  
+  if(networkStatus == 0){       
+    lcdScreen.print(WiFi.localIP());
+  }
+  else if(networkStatus == 1){
+    lcdScreen.print("Access Point");
+  }
+  else{
+    lcdScreen.print("Connecting");
+  }                  
   lcdScreen.setCursor(0, 1);
   if(disasterType == 1){      
     lcdScreen.print("CRITICAL - W");
@@ -992,7 +1075,7 @@ void getIndex(){
 
   //main body of webpage
   //display header
-  html += "<body><h1>A.E.R.O. web dashboard!</h1>";
+  html += "<body><h1>A.E.R.O. web dashboard</h1>";
 
   //display most recent sensor reading data
   html += "<div class='currentSensorReadingSection'>";
@@ -1043,7 +1126,7 @@ void getHistory(){
   html += "<a href='/' class='button'>Back to homepage</a><br>";
 
   //start the table grid layout and name the columns
-  html += "<table><tr><th>Time</th><th>Temperature</th><th>Humidity</th><th>Water Level</th><th>Soil Moisture</th><th>Environment evaluation</th></tr>";
+  html += "<table><tr><th>Time</th><th>Temperature (°C)</th><th>Humidity (%)</th><th>Water Level (cm)</th><th>Soil Moisture</th><th>Environment evaluation</th></tr>";
   
   //now iterate over sensor readings from newest to oldest entry (newest at top)
   for(int i = totalHistoryEntries - 1; i >= 0; i--){
@@ -1171,5 +1254,29 @@ String checkConditionAndGetText(){
 
   //safe fallback string
   return "";
+}
+
+
+//function that starts captive portal access point
+void startCaptivePortalAccessPoint(){
+  //assign a fixed IP for the access point - it will be the local IP of the Alert Node's microcontroller
+  IPAddress apIP = (192, 168, 4, 1);
+
+  //now configure the access point - local IP, gateway (same as local IP) and subnet
+  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+
+  //now broadcast the wireless access point
+  //A.E.R.O Emergency Network will be the SSID (the name you can see to connect)
+  //"@Abc123" will be the password used to connect to the access point
+  WiFi.softAP("A.E.R.O. Emergency Network", "@Abc123");
+
+  //start the DNS server at port 53 to route all web requests
+  //using '*' means that all website requests are routed to the same IP as the Access Point
+  dnsServer.start(53, "*", apIP);
+
+  //confirm that the Aceess point is live
+  Serial.println("Fallback Captive Portal Access Point is live. Password is '@Abc123'");
+  networkStatus = 1;
+  connectivityTypeChanged = true;
 }
 
