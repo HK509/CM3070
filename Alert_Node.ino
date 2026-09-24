@@ -20,7 +20,7 @@ const char* ssid = "//REDACTED";
 const char* password = "//REDACTED";
 
 //Static IP Configuration Variables
-IPAddress local_IP(192, 168, REDACTED, REDACTED);
+IPAddress local_IP(192, REDACTED, REDACTED, REDACTED);
 IPAddress gateway(192, REDACTED, REDACTED, REDACTED);
 IPAddress subnet(255, REDACTED, REDACTED, REDACTED);
 
@@ -683,6 +683,9 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
       disasterType = 0;
+
+      //create a data history object
+      createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 0, 0);
       return 0;
     }
     //force Wildfire Warning
@@ -692,6 +695,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateIrrigation = true;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
       disasterType = 1;
+
+      //create a data history object
+      createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 1, 1);
+
       return 1;
     }
     //force flood Warning
@@ -701,6 +708,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
       disasterType = 2;
+
+      //create a data history object
+      createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 1, 2);
+
       return 1;
     }
     //force drought Warning
@@ -710,6 +721,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateIrrigation = true;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
       disasterType = 3;
+
+      //create a data history object
+      createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 1, 3);
+
       return 1;
     }
     //force Wildfire Critical
@@ -719,6 +734,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
       disasterType = 1;
+
+      //create a data history object
+      createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 2, 1);
+
       return 2;
     }
     //focre Flood Critical
@@ -728,6 +747,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
       mitigationTransmissionCommand.activateIrrigation = false;
       mitigationTransmissionCommand.communicationCheck = 0xAA;
       disasterType = 2;
+
+      //create a data history object
+      createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 2, 2);
+
       return 2;
     }
 
@@ -746,6 +769,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
     disasterType = 1;
+
+    //create a data history object
+    createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 2, 1);
+
     return 2;
   }
 
@@ -757,6 +784,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
     disasterType = 2;
+
+    //create a data history object
+    createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 2, 2);
+
     return 2;
   }
 
@@ -768,6 +799,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateIrrigation = true;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
     disasterType = 1;
+
+    //create a data history object
+    createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 1, 1);
+
     return 1;
   }
 
@@ -779,6 +814,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
     disasterType = 2;
+
+    //create a data history object
+    createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 1, 2);
+
     return 1;
   }
 
@@ -790,6 +829,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateIrrigation = true;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
     disasterType = 3;
+
+    //create a data history object
+    createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 1, 3);
+
     return 1;
   }
 
@@ -801,6 +844,10 @@ int fuzzyLogicEnvironmentEvaluation(float temperature, float humidity, float wat
     mitigationTransmissionCommand.activateIrrigation = false;
     mitigationTransmissionCommand.communicationCheck = 0xAA;
     disasterType = 0;
+
+    //create a data history object
+    createDataHistoryObject(temperature, humidity, waterLevel, soilMoisture, 0, 0);
+
     return 0;
   }
 
@@ -841,6 +888,70 @@ float leftHandedTrapizoid(float value, float endPoint, float saturationPoint){
 }
 
 
+
+
+//function that converts sensor data, turns it into a dataHistoryObj and appends it to the historyLog 
+void createDataHistoryObject(float temperature, float humidity, float waterLevel, int soilMoisture, int environmentStatus, int disasterType){
+  //write the data at the current index position of the historyLog array
+  historyLog[currentFilledHistoryIndex].timestamp = getTimestamp();
+  historyLog[currentFilledHistoryIndex].temperature = temperature;
+  historyLog[currentFilledHistoryIndex].humidity = humidity;
+  historyLog[currentFilledHistoryIndex].waterLevel = waterLevel;
+  historyLog[currentFilledHistoryIndex].soilMoisture = soilMoisture;
+  historyLog[currentFilledHistoryIndex].environmentStatus = environmentStatus;
+  historyLog[currentFilledHistoryIndex].disasterType = disasterType;
+
+  //increment the current index position pointer to the next slot, or wrap around if the maximum 15 slots are filled
+  currentFilledHistoryIndex = (currentFilledHistoryIndex + 1) % max_entries;
+
+  //increment the totalHistoryEntries variable
+  if(totalHistoryEntries < max_entries){
+    totalHistoryEntries++;
+  }
+
+}
+
+
+//function that calculates the timestamp based on the microcontroller's uptime
+String getTimestamp(){
+  //the microcontroller clock works in milliseconds, so convert it into seconds, then calculate minutes, hours and days
+  //calculate seconds
+  unsigned long totalSeconds = millis() / 1000;
+
+  //now calculate seconds, minutes, hours and days
+  int seconds = totalSeconds % 60;
+  int minutes = (totalSeconds / 60) % 60;
+  int hours = (totalSeconds / 3600) %  24;
+  int days = totalSeconds / 86400;
+
+  //now create a string for the timestamp - format it like: "Day D, HH:MM:SS" e.g. "Day 0, 02:15:30"
+  String timestampString = "Day " + String(days) + ", ";
+
+  //hours - add padding if required
+  if(hours < 10){
+    timestampString += "0";
+  }
+  timestampString += String(hours) + ":";
+
+  //minutes - add padding if required
+  if(minutes < 10){
+    timestampString += "0";
+  }
+  timestampString += String(minutes) + ":";
+
+  //seconds - add padding if required
+  if(seconds < 10){
+    timestampString += "0";
+  }
+  timestampString += String(seconds);
+
+
+  //now return the timestamp string
+  return timestampString;
+
+}
+
+
 //function to retrieve the latest sensor reading history object stored used for the local webpage and captive portal
 dataHistoryObj getLatestReading(){
   //if no sensor readings have been sent by esp-now, then return a placeholder
@@ -857,34 +968,44 @@ dataHistoryObj getLatestReading(){
 
 //main web dashboard page
 void getIndex(){
+
+  //calculate background colour based on environment status recorded
+  //deep red for critical, orangeish-yellow for warning and pale light green for normal
+  String backgroundColour = (environmentStatus == 2) ? "#8C2939" : ((environmentStatus == 1 ) ? "#ffebbd" : "#D2FACD");
+
+  //calculate text colour based on environment status recorded
+  //white for critical, black for warning and normal 
+  String textColour = (environmentStatus == 2) ? "#FFFFFF" : "#000000";
+
   //concatinate strings representing html code to make up the web dashboard
-  //make the web dashboard responsive to different devices 
-  String html = "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'>";
+  //make the web dashboard responsive to different devices, and refresh every 2 minutes (120 seconds)
+  String html = "<html><head><meta http-equiv='refresh' content='120' name='viewport' content='width=device-width, initial-scale=1.0'>";
+  html += "<meta charset='UTF-8'>";
 
   //concatinate styling - similar to 'stylesheet'
-  //body style - background is very pale light green
-  html += "<style>body{font-family: sans-serif; text-align: center; padding: 20px; background:#f4f7f6;}";
+  //body style - background colour and text colour is dynamic based on environment status
+  html += "<style>body{font-family: sans-serif; text-align: center; padding: 20px; background:" + backgroundColour + "; color:" + textColour + ";}";
   //most recent sensor reading and environment status style
-  html += ".currentSensorReadingSection{background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px; margin: 20px auto}";
+  html += ".currentSensorReadingSection{background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 400px; margin: 20px auto; color: black;}";
   //button styling - blue button with white text
-  html += ".button{display: inline-block; padding: 12px 24px; background: #007bff; color: white; border-radius: 5px; margin-top: 15px; font-weight: bold;}</style></head>";
+  html += ".button{display: inline-block; padding: 12px 24px; background: #007bff; color: white; border-radius: 5px; margin-top: 15px; font-weight: bold; max-width: 400px;}</style></head>";
 
   //main body of webpage
   //display header
-  html += "<body><h1><A.E.R.O. web dashboard!</h1>";
+  html += "<body><h1>A.E.R.O. web dashboard!</h1>";
 
   //display most recent sensor reading data
   html += "<div class='currentSensorReadingSection'>";
-  html += "<h3>Most Recent Sensor Readings</h3>";
-  html += "<p><strong>Timestamp: </strong>" + String(getLatestReading().timestamp) + "</p>";
-  html += "<p><strong>Temperature: </strong>" + String(getLatestReading().temperature) + "°C</p>";
-  html += "<p><strong>Humidity: </strong>" + String(getLatestReading().humidity) + "%</p>";
-  html += "<p><strong>Water Level: </strong>" + String(getLatestReading().waterLevel) + "cm</p>";
-  html += "<p><strong>Soil Moisture Level: </strong>" + String(getLatestReading().soilMoisture) + "</p>";
+  html += "<h3>Most Recent Sensor Reading</h3>";
+  //display environment condition and disaster type corresponding text first
+  html += checkConditionAndGetText();
+  html += "<p><strong>Timestamp: </strong><br>" + String(getLatestReading().timestamp) + "</p>";
+  html += "<p><strong>Temperature: </strong><br>" + String(getLatestReading().temperature) + "°C</p>";
+  html += "<p><strong>Humidity: </strong><br>" + String(getLatestReading().humidity) + "%</p>";
+  html += "<p><strong>Water Level: </strong><br>" + String(getLatestReading().waterLevel) + "cm</p>";
+  html += "<p><strong>Soil Moisture Level: </strong><br>" + String(getLatestReading().soilMoisture) + "</p>";
   html += "</div>";
 
-  //now display environment condition and disaster type corresponding text
-  html += checkConditionAndGetText();
 
   //add the button to go to the sensor reading history page
   html += "<br><a href='/history' class='button'>View Past Sensor Reading History</a>";
@@ -896,6 +1017,7 @@ void getIndex(){
   //now send the webpage to the browser
   server.send(200, "text/html", html);
 }
+
 
 
 //the sensor history log web dashboard page
@@ -910,8 +1032,8 @@ void getHistory(){
 
 //text to display on the web dashboard when there is a warning of a wildfire
 String getWarningWildfireText(){
-  //light orangish-yellow background, brownish color
-  String text = "<div style='background:#ffebbd; color:#856404; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #ffeeba;'>"
+  //golden orange text color
+  String text = "<div style='color:#E8AA0E; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold;'>"
           "<h3 style='margin:0; text-align:center;'> WILDFIRE WARNING: </h3>"
           "<ul style='margin:10px 0 0 20px;'><li>Pack emergency supplies</li><li>Clear dry debris from gutters</li><li>Don't have BBQs or burn bonfires</li><li>Monitor local news and alerts</li></ul>"
           "</div>";
@@ -920,8 +1042,8 @@ String getWarningWildfireText(){
 
 //text to display on the web dashboard when there is a warning of a flood
 String getWarningFloodText(){
-  //light orangish-yellow background, brownish color
-  String text = "<div style='background:#ffebbd; color:#856404; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #ffeeba;'>"
+  //golden orange text color
+  String text = "<div style='color:#E8AA0E; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold;'>"
           "<h3 style='margin:0; text-align:center;'> FLOOD WARNING: </h3>"
           "<ul style='margin:10px 0 0 20px;'><li>Move critical electrical items upstairs</li><li>Turn off primary utility valves</li></ul>"
           "</div>";
@@ -930,8 +1052,8 @@ String getWarningFloodText(){
 
 //text to display on the web dashboard when there is a warning of a drought
 String getWarningDroughtText(){
-  //light orangish-yellow background, brownish color
-  String text = "<div style='background:#ffebbd; color:#856404; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #ffeeba;'>"
+  //golden orange text color
+  String text = "<div style='color:#E8AA0E; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold;'>"
           "<h3 style='margin:0; text-align:center;'> DROUGHT WARNING: </h3>"
           "<ul style='margin:10px 0 0 20px;'><li>Strict domestic water restrictions are active</li><li>Hosepipe ban effective</li></ul>"
           "</div>";
@@ -940,8 +1062,8 @@ String getWarningDroughtText(){
 
 //text to display on the web dashboard when wildfire is critical
 String getCriticalWildfireText(){
-  //light deep red background, brownish-red color
-  String text = "<div style='background:#8C2939; color:#54131A; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #f5c6cb;'>"
+  //deep red text color
+  String text = "<div style='color:#B02C15; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold;'>"
           "<h3 style='margin:0; text-align:center;'> CRITICAL WILDFIRE: </h3>"
           "<ul style='margin:10px 0 0 20px;'><li><strong>Evacuate Immediately!</strong></li><li>Follow local emergency routes</li><li>Do not delay.</li></ul>"
           "</div>";
@@ -950,10 +1072,19 @@ String getCriticalWildfireText(){
 
 //text to display on the web dashboard when flood is critical
 String getCriticalFloodText(){
-  //light deep red background, brownish-red color
-  String text = "<div style='background:#8C2939; color:#54131A; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold; border:1px solid #f5c6cb;'>"
+  //deep-red text color
+  String text = "<div style='color:#B02C15; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold;'>"
           "<h3 style='margin:0; text-align:center;'> CRITICAL FLOOD: </h3>"
           "<ul style='margin:10px 0 0 20px;'><li>Move to the highest floor you can or roof immediately</li><li>Avoid driving or walking through moving water</li></ul>"
+          "</div>";
+  return text;
+}
+
+//text to display on the web dashboard when conditions are normal
+String getNormalText(){
+  //green text color
+  String text = "<div style='color:#53CF62; padding:15px; border-radius: 5px; margin: 15px auto; max-width: 400px; font-weight:bold;'>"
+          "<h3 style='margin:0; text-align:center;'> Normal Conditions </h3>"
           "</div>";
   return text;
 }
@@ -963,7 +1094,7 @@ String getCriticalFloodText(){
 String checkConditionAndGetText(){
   //normal conditions, do not need to return any special text
   if(environmentStatus == 0){
-    return "";
+    return getNormalText();
   }
 
   //warning states
